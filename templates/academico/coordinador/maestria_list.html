@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block page_content %}
+<div class="space-y-6">
+    <!-- Encabezado mejorado con estadísticas -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
+                <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="book-open" class="w-5 h-5 text-purple-600"></i>
+                </div>
+                Mis Maestrías
+            </h1>
+            {% if maestrias %}
+                <p class="text-gray-500 mt-1 ml-13">Gestiona tus {{ maestrias.count }} maestrías</p>
+            {% endif %}
+        </div>
+        <a href="{% url 'academico:maestria_create' %}" 
+           class="inline-flex items-center gap-2 p-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all font-medium shadow-sm hover:shadow-md">
+            <i data-lucide="plus-circle" class="w-5 h-5"></i>
+            Nueva Maestría
+        </a>
+    </div>
+    
+    {% if maestrias %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for maestria in maestrias %}
+                <div class="group bg-white rounded-xl border border-gray-100 card-shadow hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col">
+                    <!-- Cabecera con gradiente -->
+                    <div class="relative bg-gradient-to-br from-purple-600 to-purple-800 text-white px-6 py-5">
+                        <div class="absolute top-4 right-4 opacity-20">
+                            <i data-lucide="graduation-cap" class="w-16 h-16"></i>
+                        </div>
+                        <h3 class="text-lg font-bold relative z-10">{{ maestria.nombre }}</h3>
+                    </div>
+                    
+                    <!-- Contenido -->
+                    <div class="p-6 flex-1">
+                        <div class="space-y-3">
+                            <!-- Código -->
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i data-lucide="hash" class="w-4 h-4 text-purple-600"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs text-gray-400 uppercase tracking-wider">Código</p>
+                                    <p class="text-sm font-semibold text-gray-800 font-mono">{{ maestria.codigo }}</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Módulos -->
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i data-lucide="layers" class="w-4 h-4 text-blue-600"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs text-gray-400 uppercase tracking-wider">Módulos</p>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                                        {{ maestria.modulos.count }}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <!-- Créditos -->
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-emerald-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i data-lucide="award" class="w-4 h-4 text-emerald-600"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs text-gray-400 uppercase tracking-wider">Créditos</p>
+                                    <p class="text-sm font-semibold text-gray-800">{{ maestria.creditos_totales }}</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Duración -->
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i data-lucide="clock" class="w-4 h-4 text-orange-600"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs text-gray-400 uppercase tracking-wider">Duración</p>
+                                    <p class="text-sm font-semibold text-gray-800">{{ maestria.duracion_semestres }} semestres</p>
+                                </div>
+                            </div>
+                            
+                            {% if maestria.descripcion %}
+                                <div class="pt-3 mt-3 border-t border-gray-100">
+                                    <p class="text-gray-500 text-sm leading-relaxed italic">"{{ maestria.descripcion|truncatewords:20 }}"</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Acciones -->
+                    <div class="bg-gray-50/50 px-6 py-4 flex gap-3 border-t border-gray-100">
+                        <a href="{% url 'academico:maestria_detail' maestria.pk %}" 
+                           class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-white border border-gray-200 hover:border-purple-300 hover:bg-purple-50 text-gray-700 hover:text-purple-700 rounded-lg transition-all text-sm font-medium group/btn">
+                            <i data-lucide="eye" class="w-4 h-4 group-hover/btn:scale-110 transition-transform"></i>
+                            Detalles
+                        </a>
+                        <a href="{% url 'academico:maestria_update' maestria.pk %}" 
+                           class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all text-sm font-medium shadow-sm hover:shadow-md group/btn">
+                            <i data-lucide="pencil" class="w-4 h-4 group-hover/btn:scale-110 transition-transform"></i>
+                            Editar
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Estado vacío mejorado -->
+        <div class="text-center py-16">
+            <div class="w-24 h-24 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i data-lucide="book-open" class="w-12 h-12 text-purple-400"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">No tienes maestrías creadas</h3>
+            <p class="text-gray-500 mb-6 max-w-md mx-auto">
+                Comienza creando tu primera maestría para gestionar módulos, asignaturas y estudiantes.
+            </p>
+            <a href="{% url 'academico:maestria_create' %}" 
+               class="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all font-medium shadow-sm hover:shadow-md">
+                <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                Crear Primera Maestría
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    // Inicializar íconos de Lucide
+    lucide.createIcons();
+</script>
+{% endblock %}

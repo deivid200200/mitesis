@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block page_content %}
+<div class="space-y-6">
+    <!-- Encabezado -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                <i data-lucide="book-marked" class="w-6 h-6 text-purple-600"></i>
+                Asignaturas - Módulo {{ modulo.numero_modulo }}
+            </h1>
+            <p class="text-gray-500 mt-1">{{ modulo.nombre }}</p>
+        </div>
+        <div class="flex gap-3">
+            <a href="{% url 'academico:asignatura_create' modulo.pk %}" 
+               class="inline-flex items-center gap-2 px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all text-sm font-medium">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                Nueva Asignatura
+            </a>
+            <a href="{% url 'academico:modulo_list' modulo.maestria_id %}" 
+               class="inline-flex items-center gap-2 px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-all text-sm font-medium">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                Volver
+            </a>
+        </div>
+    </div>
+
+    {% if asignaturas %}
+        <!-- Tabla -->
+        <div class="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-200">
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Código</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Nombre</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Créditos</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Horas</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Obligatoria</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Profesores</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Estado</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for asignatura in asignaturas %}
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="py-3 px-4 font-bold text-gray-800">{{ asignatura.codigo }}</td>
+                                <td class="py-3 px-4 text-gray-700">{{ asignatura.nombre }}</td>
+                                <td class="py-3 px-4">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">
+                                        {{ asignatura.creditos }} cr
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 text-gray-600 text-xs">
+                                    <span class="whitespace-nowrap">T: {{ asignatura.horas_teoricas }}</span>
+                                    <span class="whitespace-nowrap ml-2">P: {{ asignatura.horas_practicas }}</span>
+                                </td>
+                                <td class="py-3 px-4">
+                                    {% if asignatura.es_obligatoria %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700">
+                                            Obligatoria
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
+                                            Electiva
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="py-3 px-4">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                                        {{ asignatura.profesores.count }}
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4">
+                                    {% if asignatura.activa %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                                            Activa
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700">
+                                            Inactiva
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="py-3 px-4">
+                                    <div class="flex gap-2">
+                                        <a href="{% url 'academico:profesor_asignatura_list' asignatura.pk %}" 
+                                           class="p-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors" 
+                                           title="Ver profesores">
+                                            <i data-lucide="user" class="w-4 h-4"></i>
+                                        </a>
+                                        <a href="{% url 'academico:asignatura_update' asignatura.pk %}" 
+                                           class="p-2 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-lg transition-colors" 
+                                           title="Editar">
+                                            <i data-lucide="pencil" class="w-4 h-4"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Paginación -->
+        {% if is_paginated %}
+            <nav class="flex justify-center items-center gap-2 mt-6">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1" 
+                       class="px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors text-sm font-medium">
+                        &laquo; Primera
+                    </a>
+                    <a href="?page={{ page_obj.previous_page_number }}" 
+                       class="px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors text-sm font-medium">
+                        Anterior
+                    </a>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <span class="px-3 py-2 bg-purple-600 text-white rounded-lg text-sm font-semibold shadow-sm">
+                            {{ num }}
+                        </span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}" 
+                           class="px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors text-sm font-medium">
+                            {{ num }}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" 
+                       class="px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors text-sm font-medium">
+                        Siguiente
+                    </a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}" 
+                       class="px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors text-sm font-medium">
+                        Última &raquo;
+                    </a>
+                {% endif %}
+            </nav>
+        {% endif %}
+    {% else %}
+        <!-- Estado vacío -->
+        <div class="bg-amber-50 border-l-4 border-amber-500 rounded-lg p-5">
+            <div class="flex items-start gap-3">
+                <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0"></i>
+                <div>
+                    <p class="text-amber-800 font-medium mb-1">Sin asignaturas</p>
+                    <p class="text-amber-600 text-sm">
+                        Este módulo aún no tiene asignaturas.
+                        <a href="{% url 'academico:asignatura_create' modulo_id=modulo.pk %}" class="font-semibold underline hover:text-amber-800">
+                            Crear la primera asignatura
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

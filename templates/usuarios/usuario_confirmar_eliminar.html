@@ -1,0 +1,44 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Eliminar Usuario{% endblock %}
+
+{% block page_content %}
+<div class="max-w-2xl mx-auto px-6">
+    <div class="bg-white rounded-xl shadow-md overflow-hidden border-l-4 border-red-500">
+        <div class="bg-red-600 text-white px-6 py-4">
+            <h3 class="text-2xl font-semibold m-0 flex items-center">
+                <i data-lucide="alert-triangle" class="w-6 h-6 mr-2"></i>
+                Confirmar Eliminación
+            </h3>
+        </div>
+        <div class="p-8">
+            <p class="text-lg text-gray-800 mb-6">
+                ¿Estás seguro de que deseas eliminar este usuario?
+            </p>
+            
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6 rounded">
+                <p class="mb-2"><strong class="text-gray-800">Usuario:</strong> <span class="text-gray-600">{{ object.username }}</span></p>
+                <p class="mb-2"><strong class="text-gray-800">Nombre:</strong> <span class="text-gray-600">{{ object.get_full_name|default:"Sin nombre" }}</span></p>
+                <p><strong class="text-gray-800">Email:</strong> <span class="text-gray-600">{{ object.email }}</span></p>
+            </div>
+
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded mb-6">
+                <p class="text-red-800">
+                    <i data-lucide="alert-circle" class="w-5 h-5 inline mr-2"></i>
+                    <strong>Advertencia:</strong> Esta acción no se puede deshacer. Se eliminarán todos los datos asociados a este usuario.
+                </p>
+            </div>
+
+            <form method="post" class="flex gap-2 justify-end">
+                {% csrf_token %}
+                <a href="{% url 'usuario_list' %}" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all">
+                    <i data-lucide="arrow-left" class="w-4 h-4 inline mr-2"></i>Cancelar
+                </a>
+                <button type="submit" class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all">
+                    <i data-lucide="trash" class="w-4 h-4 inline mr-2"></i>Sí, Eliminar
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

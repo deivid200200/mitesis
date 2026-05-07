@@ -1,0 +1,567 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Sistema de Maestrías{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos adicionales para gráficos */
+    canvas {
+        max-width: 100% !important;
+    }
+    .hover-scale {
+        transition: transform 0.3s ease;
+    }
+    .hover-scale:hover {
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="space-y-8">
+    <h1 class="text-2xl font-bold text-gray-800">
+        {% if rol == 'administrador' %}Dashboard Administrador
+        {% elif rol == 'coordinador' %}Panel del Coordinador
+        {% elif rol == 'profesor' %}Panel del Profesor
+        {% elif rol == 'secretaria' %}Panel de Secretaría
+        {% elif rol == 'estudiante' %}Mi Panel Académico
+        {% else %}Dashboard{% endif %}
+    </h1>
+
+    {% if rol == 'administrador' %}
+        <!-- Top Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-white p-6 rounded-2xl flex justify-between items-center card-shadow border-l-4 border-purple-400 hover-scale transition-all">
+                <div>
+                    <p class="text-gray-400 text-sm font-medium mb-1">Total Usuarios</p>
+                    <h2 class="text-3xl font-bold text-gray-800">{{ usuarios_total }}</h2>
+                </div>
+                <div class="bg-purple-100 p-3 rounded-xl text-purple-600">
+                    <i data-lucide="users" class="w-8 h-8"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl flex justify-between items-center card-shadow border-l-4 border-blue-400 hover-scale transition-all">
+                <div>
+                    <p class="text-gray-400 text-sm font-medium mb-1">Usuarios Activos</p>
+                    <h2 class="text-3xl font-bold text-gray-800">{{ usuarios_activos }}</h2>
+                </div>
+                <div class="bg-blue-100 p-3 rounded-xl text-blue-600">
+                    <i data-lucide="user-check" class="w-8 h-8"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl flex justify-between items-center card-shadow border-l-4 border-orange-400 hover-scale transition-all">
+                <div>
+                    <p class="text-gray-400 text-sm font-medium mb-1">Usuarios Inactivos</p>
+                    <h2 class="text-3xl font-bold text-gray-800">{{ usuarios_inactivos }}</h2>
+                </div>
+                <div class="bg-orange-100 p-3 rounded-xl text-orange-600">
+                    <i data-lucide="user-x" class="w-8 h-8"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl flex justify-between items-center card-shadow border-l-4 border-emerald-400 hover-scale transition-all">
+                <div>
+                    <p class="text-gray-400 text-sm font-medium mb-1">Roles Activos</p>
+                    <h2 class="text-3xl font-bold text-gray-800">{{ usuarios_por_rol|length }}</h2>
+                </div>
+                <div class="bg-emerald-100 p-3 rounded-xl text-emerald-600">
+                    <i data-lucide="shield" class="w-8 h-8"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Main Chart (Bar Chart) -->
+            <div class="lg:col-span-2 bg-white p-6 rounded-2xl card-shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h3 class="font-bold text-lg text-gray-800">Distribución de Usuarios</h3>
+                        <p class="text-sm text-gray-400">Por rol en el sistema</p>
+                    </div>
+                </div>
+                <div class="h-64">
+                    <canvas id="usersByRoleChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Circular Chart (Users Distribution) -->
+            <div class="bg-white p-6 rounded-2xl card-shadow flex flex-col items-center">
+                <div class="w-full flex justify-between mb-4">
+                    <h3 class="font-bold text-lg text-gray-800">Porcentaje por Rol</h3>
+                    <i data-lucide="more-vertical" class="text-gray-400 w-5 h-5 cursor-pointer"></i>
+                </div>
+                
+                <div class="relative w-full h-64 flex justify-center items-center">
+                    <canvas id="rolesDonutChart"></canvas>
+                    <div class="absolute flex flex-col items-center justify-center pointer-events-none">
+                        <p class="text-xs text-gray-400 uppercase tracking-widest">Total</p>
+                        <p class="text-2xl font-bold text-gray-800">{{ usuarios_total }}</p>
+                    </div>
+                </div>
+
+                <div class="w-full flex flex-wrap justify-center gap-4 mt-4">
+                    {% for rol_stat in usuarios_por_rol %}
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-purple-500" style="background-color: {{ forloop.counter0|stringformat:"s"|add:"" }}"></span>
+                            <span class="text-sm text-gray-600 font-medium capitalize">{{ rol_stat.rol }}</span>
+                            <span class="text-xs text-gray-400">({{ rol_stat.count }})</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 pb-8">
+            <!-- Tabla de Roles -->
+            <div class="lg:col-span-2 bg-white p-6 rounded-2xl card-shadow">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h3 class="font-bold text-lg text-gray-800">Detalle de Usuarios por Rol</h3>
+                        <p class="text-sm text-gray-400">Distribución completa de roles</p>
+                    </div>
+                    <i data-lucide="more-vertical" class="text-gray-400 w-5 h-5 cursor-pointer"></i>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="text-gray-400 text-xs uppercase font-semibold border-b border-gray-100">
+                                <th class="pb-4">Rol</th>
+                                <th class="pb-4">Cantidad</th>
+                                <th class="pb-4">Porcentaje</th>
+                                <th class="pb-4">Acciones</th>
+                             </tr>
+                        </thead>
+                        <tbody class="text-sm">
+                            {% for rol_stat in usuarios_por_rol %}
+                                <tr class="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                                    <td class="py-3">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 rounded-lg bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">
+                                                <i data-lucide="user" class="w-4 h-4"></i>
+                                            </div>
+                                            <span class="font-medium text-gray-700 capitalize">{{ rol_stat.rol }}</span>
+                                        </div>
+                                     </td>
+                                    <td class="py-3">
+                                        <span class="font-semibold text-gray-800">{{ rol_stat.count }}</span>
+                                     </td>
+                                    <td class="py-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                                <div class="h-full bg-purple-500 rounded-full" style="width: {% widthratio rol_stat.count usuarios_total 100 %}%"></div>
+                                            </div>
+                                            <span class="text-xs text-gray-500">{% widthratio rol_stat.count usuarios_total 100 %}%</span>
+                                        </div>
+                                     </td>
+                                    <td class="py-3">
+                                        <a href="{% url 'usuario_list' %}?rol={{ rol_stat.rol }}" class="text-purple-600 hover:text-purple-700 text-sm">Ver detalles →</a>
+                                     </td>
+                                 </tr>
+                            {% endfor %}
+                        </tbody>
+                     </table>
+                </div>
+            </div>
+
+            <!-- Panel de Información -->
+            <div class="bg-white p-6 rounded-2xl card-shadow">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h3 class="font-bold text-lg text-gray-800">Información del Sistema</h3>
+                        <p class="text-sm text-gray-400">Resumen general</p>
+                    </div>
+                    <i data-lucide="more-vertical" class="text-gray-400 w-5 h-5 cursor-pointer"></i>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="flex items-start gap-4">
+                        <div class="bg-purple-50 p-2 rounded-lg text-purple-500">
+                            <i data-lucide="calendar" class="w-5 h-5"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-bold text-gray-800">Total Usuarios Registrados</h4>
+                            <p class="text-2xl font-bold text-purple-600 mt-1">{{ usuarios_total }}</p>
+                            <p class="text-xs text-gray-400 mt-1">En todo el sistema</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="bg-green-50 p-2 rounded-lg text-green-500">
+                            <i data-lucide="activity" class="w-5 h-5"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-bold text-gray-800">Usuarios Activos</h4>
+                            <p class="text-2xl font-bold text-green-600 mt-1">{{ usuarios_activos }}</p>
+                            <p class="text-xs text-gray-400 mt-1">{{ usuarios_inactivos }} inactivos</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 pt-6 border-t border-gray-100">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-sm text-gray-600">Tasa de actividad</span>
+                        <span class="text-sm font-semibold text-purple-600">{% widthratio usuarios_activos usuarios_total 100 %}%</span>
+                    </div>
+                    <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-purple-500 rounded-full" style="width: {% widthratio usuarios_activos usuarios_total 100 %}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% elif rol == 'coordinador' %}
+        <!-- Dashboard Coordinador -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white p-6 rounded-2xl flex justify-between items-center card-shadow border-l-4 border-purple-400">
+                <div>
+                    <p class="text-gray-400 text-sm font-medium mb-1">Mis Maestrías</p>
+                    <h2 class="text-3xl font-bold text-gray-800">{{ maestrias.count }}</h2>
+                    <p class="text-xs text-gray-400 mt-1">Maestrías a mi cargo</p>
+                </div>
+                <div class="bg-purple-100 p-3 rounded-xl text-purple-600">
+                    <i data-lucide="graduation-cap" class="w-8 h-8"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl card-shadow">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h3 class="font-bold text-lg text-gray-800">Mis Maestrías</h3>
+                    <p class="text-sm text-gray-400">Maestrías que coordinó</p>
+                </div>
+                <a href="{% url 'academico:maestria_create' %}" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all flex items-center gap-2">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Nueva Maestría
+                </a>
+            </div>
+            {% if maestrias %}
+                <div class="space-y-3">
+                    {% for maestria in maestrias %}
+                        <a href="{% url 'academico:maestria_detail' maestria.pk %}" class="block p-4 bg-gray-50 rounded-xl hover:bg-purple-50 transition-all">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">{{ maestria.nombre }}</h4>
+                                    <p class="text-sm text-gray-500">Código: {{ maestria.codigo }}</p>
+                                </div>
+                                <span class="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm">{{ maestria.modulos.count }} módulos</span>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-12">
+                    <i data-lucide="book-open" class="w-16 h-16 mx-auto text-gray-300 mb-4"></i>
+                    <p class="text-gray-500">No tienes maestrías asignadas</p>
+                    <a href="{% url 'academico:maestria_create' %}" class="inline-block mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all">
+                        Crear primera maestría
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+    {% elif rol == 'profesor' %}
+        <!-- Dashboard Profesor -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white p-6 rounded-2xl flex justify-between items-center card-shadow border-l-4 border-purple-400">
+                <div>
+                    <p class="text-gray-400 text-sm font-medium mb-1">Mis Asignaturas</p>
+                    <h2 class="text-3xl font-bold text-gray-800">{{ total_asignaturas }}</h2>
+                </div>
+                <div class="bg-purple-100 p-3 rounded-xl text-purple-600">
+                    <i data-lucide="book-open" class="w-8 h-8"></i>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl flex justify-between items-center card-shadow border-l-4 border-blue-400">
+                <div>
+                    <p class="text-gray-400 text-sm font-medium mb-1">Estudiantes a Cargo</p>
+                    <h2 class="text-3xl font-bold text-gray-800">{{ total_estudiantes }}</h2>
+                </div>
+                <div class="bg-blue-100 p-3 rounded-xl text-blue-600">
+                    <i data-lucide="users" class="w-8 h-8"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl card-shadow">
+            <h3 class="font-bold text-lg text-gray-800 mb-4">Mis Asignaturas</h3>
+            {% if asignaturas %}
+                <div class="space-y-3">
+                    {% for asignacion in asignaturas %}
+                        <a href="{% url 'academico:registrar_calificaciones' asignacion.asignatura.pk %}" class="block p-4 bg-gray-50 rounded-xl hover:bg-purple-50 transition-all">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">{{ asignacion.asignatura.nombre }}</h4>
+                                    <p class="text-sm text-gray-500">{{ asignacion.asignatura.codigo }} - {{ asignacion.asignatura.modulo.maestria.nombre }}</p>
+                                </div>
+                                <span class="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm">
+                                    <i data-lucide-edit class="w-3 h-3"></i> Registrar notas
+                                </span>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-12">
+                    <i data-lucide="book" class="w-16 h-16 mx-auto text-gray-300 mb-4"></i>
+                    <p class="text-gray-500">No tienes asignaturas asignadas</p>
+                </div>
+            {% endif %}
+        </div>
+
+    {% elif rol == 'secretaria' %}
+        <!-- Dashboard Secretaria -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white p-6 rounded-2xl flex justify-between items-center card-shadow border-l-4 border-purple-400">
+                <div>
+                    <p class="text-gray-400 text-sm font-medium mb-1">Total Estudiantes</p>
+                    <h2 class="text-3xl font-bold text-gray-800">{{ estudiantes_total }}</h2>
+                </div>
+                <div class="bg-purple-100 p-3 rounded-xl text-purple-600">
+                    <i data-lucide="users" class="w-8 h-8"></i>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl flex justify-between items-center card-shadow border-l-4 border-orange-400">
+                <div>
+                    <p class="text-gray-400 text-sm font-medium mb-1">Inscripciones Pendientes</p>
+                    <h2 class="text-3xl font-bold text-gray-800">{{ inscripciones_pendientes }}</h2>
+                </div>
+                <div class="bg-orange-100 p-3 rounded-xl text-orange-600">
+                    <i data-lucide="clock" class="w-8 h-8"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl card-shadow">
+            <h3 class="font-bold text-lg text-gray-800 mb-4">Acciones Rápidas</h3>
+            <div class="flex gap-4 flex-wrap">
+                <a href="{% url 'academico:estudiante_list' %}" class="px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-all flex items-center gap-2">
+                    <i data-lucide="list" class="w-5 h-5"></i> Ver Estudiantes
+                </a>
+                <a href="{% url 'academico:inscripcion_modulo_create' %}" class="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all flex items-center gap-2">
+                    <i data-lucide="user-plus" class="w-5 h-5"></i> Inscribir Estudiante
+                </a>
+            </div>
+        </div>
+
+    {% elif rol == 'estudiante' %}
+        <!-- Dashboard Estudiante -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-2xl flex justify-between items-center card-shadow border-l-4 border-purple-400">
+                <div>
+                    <p class="text-gray-400 text-sm font-medium mb-1">Promedio General</p>
+                    <h2 class="text-3xl font-bold text-gray-800">{{ promedio|floatformat:1 }}</h2>
+                </div>
+                <div class="bg-purple-100 p-3 rounded-xl text-purple-600">
+                    <i data-lucide="trending-up" class="w-8 h-8"></i>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl flex justify-between items-center card-shadow border-l-4 border-green-400">
+                <div>
+                    <p class="text-gray-400 text-sm font-medium mb-1">Créditos Aprobados</p>
+                    <h2 class="text-3xl font-bold text-gray-800">{{ expediente.creditos_aprobados|default:0 }}</h2>
+                    <p class="text-xs text-gray-400 mt-1">De {{ expediente.creditos_cursados|default:0 }}</p>
+                </div>
+                <div class="bg-green-100 p-3 rounded-xl text-green-600">
+                    <i data-lucide="award" class="w-8 h-8"></i>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl flex justify-between items-center card-shadow border-l-4 border-blue-400">
+                <div>
+                    <p class="text-gray-400 text-sm font-medium mb-1">Asignaturas Cursadas</p>
+                    <h2 class="text-3xl font-bold text-gray-800">{{ calificaciones_totales }}</h2>
+                </div>
+                <div class="bg-blue-100 p-3 rounded-xl text-blue-600">
+                    <i data-lucide="book-open" class="w-8 h-8"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfico de Rendimiento para Estudiante -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white p-6 rounded-2xl card-shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h3 class="font-bold text-lg text-gray-800">Mi Progreso Académico</h3>
+                        <p class="text-sm text-gray-400">Porcentaje de avance</p>
+                    </div>
+                </div>
+                <div class="h-64 relative flex justify-center items-center">
+                    <canvas id="studentProgressChart"></canvas>
+                    <div class="absolute flex flex-col items-center justify-center pointer-events-none">
+                        <p class="text-xs text-gray-400 uppercase tracking-widest">Progreso</p>
+                        <p class="text-3xl font-bold text-gray-800">
+                            {% if expediente.creditos_cursados %}
+                                {% widthratio expediente.creditos_aprobados expediente.creditos_cursados 100 %}%
+                            {% else %}0%{% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl card-shadow">
+                <h3 class="font-bold text-lg text-gray-800 mb-4">Mis Documentos</h3>
+                <div class="space-y-4">
+                    <a href="{% url 'academico:mi_expediente' %}" class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-purple-50 transition-all">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-purple-100 p-2 rounded-lg text-purple-600">
+                                <i data-lucide="file-text" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">Mi Expediente</p>
+                                <p class="text-xs text-gray-400">Ver mi historial académico</p>
+                            </div>
+                        </div>
+                        <i data-lucide="arrow-right" class="w-5 h-5 text-gray-400"></i>
+                    </a>
+                    <a href="{% url 'academico:mis_notas' %}" class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-purple-50 transition-all">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-blue-100 p-2 rounded-lg text-blue-600">
+                                <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">Mis Notas</p>
+                                <p class="text-xs text-gray-400">Consultar calificaciones</p>
+                            </div>
+                        </div>
+                        <i data-lucide="arrow-right" class="w-5 h-5 text-gray-400"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    {% else %}
+        <div class="bg-white p-8 rounded-2xl card-shadow text-center">
+            <i data-lucide="school" class="w-16 h-16 mx-auto text-gray-400 mb-4"></i>
+            <h2 class="text-xl font-semibold text-gray-800">Bienvenido al Sistema de Gestión Académica</h2>
+            <p class="text-gray-500 mt-2">Sistema de Maestrías</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+
+    {% if rol == 'administrador' %}
+        // Gráfico de barras para usuarios por rol
+        const ctxBar = document.getElementById('usersByRoleChart').getContext('2d');
+        const rolesLabels = [
+            {% for rol_stat in usuarios_por_rol %}
+                '{{ rol_stat.rol|title }}'{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+        const rolesCounts = [
+            {% for rol_stat in usuarios_por_rol %}
+                {{ rol_stat.count }}{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+        
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: rolesLabels,
+                datasets: [{
+                    label: 'Cantidad de Usuarios',
+                    data: rolesCounts,
+                    backgroundColor: '#8b5cf6',
+                    borderRadius: 8,
+                    barThickness: 40,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f3f4f6', drawBorder: false },
+                        ticks: { color: '#9ca3af', font: { size: 11 } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#9ca3af', font: { size: 11, weight: 'bold' } }
+                    }
+                }
+            }
+        });
+
+        // Gráfico de Donut para porcentajes
+        const ctxDonut = document.getElementById('rolesDonutChart').getContext('2d');
+        const colors = ['#8b5cf6', '#fb923c', '#3b82f6', '#10b981', '#ef4444', '#f59e0b', '#ec4899', '#06b6d4'];
+        
+        new Chart(ctxDonut, {
+            type: 'doughnut',
+            data: {
+                labels: rolesLabels,
+                datasets: [{
+                    data: rolesCounts,
+                    backgroundColor: colors.slice(0, rolesCounts.length),
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                cutout: '70%',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.raw / total) * 100).toFixed(1);
+                                return `${context.label}: ${context.raw} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    {% endif %}
+
+    {% if rol == 'estudiante' and expediente %}
+        // Gráfico de progreso del estudiante
+        const ctxProgress = document.getElementById('studentProgressChart').getContext('2d');
+        const creditosAprobados = {{ expediente.creditos_aprobados|default:0 }};
+        const creditosCursados = {{ expediente.creditos_cursados|default:0 }};
+        const progressPercent = creditosCursados > 0 ? (creditosAprobados / creditosCursados) * 100 : 0;
+        
+        new Chart(ctxProgress, {
+            type: 'doughnut',
+            data: {
+                labels: ['Completado', 'Pendiente'],
+                datasets: [{
+                    data: [progressPercent, 100 - progressPercent],
+                    backgroundColor: ['#8b5cf6', '#e9ecef'],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                cutout: '75%',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${context.raw.toFixed(1)}%`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    {% endif %}
+</script>
+{% endblock %}

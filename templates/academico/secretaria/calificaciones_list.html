@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+<div class="max-w-7xl mx-auto px-6">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">
+            <i data-lucide="pencil-square" class="w-8 h-8 inline mr-2"></i>Gestión de Calificaciones
+        </h1>
+        <p class="text-gray-500">Edita las calificaciones de los estudiantes</p>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-md p-4 mb-6">
+        <form class="flex flex-col md:flex-row gap-4" method="get">
+            <input type="text" name="search" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500" placeholder="Buscar estudiante o asignatura..." 
+                   value="{{ request.GET.search }}">
+            <select name="estado" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500">
+                <option value="">Todos los estados</option>
+                <option value="pendiente" {% if request.GET.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                <option value="en_curso" {% if request.GET.estado == 'en_curso' %}selected{% endif %}>En Curso</option>
+                <option value="aprobada" {% if request.GET.estado == 'aprobada' %}selected{% endif %}>Aprobada</option>
+                <option value="reprobada" {% if request.GET.estado == 'reprobada' %}selected{% endif %}>Reprobada</option>
+            </select>
+            <button type="submit" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all">
+                <i data-lucide="search" class="w-4 h-4 inline mr-2"></i>Buscar
+            </button>
+        </form>
+    </div>
+
+    {% if calificaciones %}
+        <div class="overflow-x-auto bg-white rounded-xl shadow-md">
+            <table class="w-full border-collapse">
+                <thead>
+                    <tr class="bg-purple-600 text-white">
+                        <th class="text-left py-3 px-4 font-semibold">Estudiante</th>
+                        <th class="text-left py-3 px-4 font-semibold">Matrícula</th>
+                        <th class="text-left py-3 px-4 font-semibold">Asignatura</th>
+                        <th class="text-center py-3 px-4 font-semibold">P1</th>
+                        <th class="text-center py-3 px-4 font-semibold">P2</th>
+                        <th class="text-center py-3 px-4 font-semibold">Trabajo</th>
+                        <th class="text-center py-3 px-4 font-semibold">Final</th>
+                        <th class="text-left py-3 px-4 font-semibold">Estado</th>
+                        <th class="text-left py-3 px-4 font-semibold">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for calificacion in calificaciones %}
+                        <tr class="border-b border-gray-200 hover:bg-gray-50">
+                            <td class="py-3 px-4">{{ calificacion.estudiante.usuario.get_full_name }}</td>
+                            <td class="py-3 px-4">{{ calificacion.estudiante.matricula }}</td>
+                            <td class="py-3 px-4">{{ calificacion.asignatura.nombre }}</td>
+                            <td class="py-3 px-4 text-center">{{ calificacion.nota_parcial1|default:"-" }}</td>
+                            <td class="py-3 px-4 text-center">{{ calificacion.nota_parcial2|default:"-" }}</td>
+                            <td class="py-3 px-4 text-center">{{ calificacion.nota_trabajo|default:"-" }}</td>
+                            <td class="py-3 px-4 text-center"><strong>{{ calificacion.nota_final|default:"-" }}</strong></td>
+                            <td class="py-3 px-4">
+                                {% if calificacion.estado == 'aprobada' %}
+                                    <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800">Aprobada</span>
+                                {% elif calificacion.estado == 'reprobada' %}
+                                    <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-red-100 text-red-800">Reprobada</span>
+                                {% elif calificacion.estado == 'pendiente' %}
+                                    <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-gray-100 text-gray-800">Pendiente</span>
+                                {% elif calificacion.estado == 'en_curso' %}
+                                    <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800">En Curso</span>
+                                {% endif %}
+                            </td>
+                            <td class="py-3 px-4">
+                                <div class="flex gap-2">
+                                    <a href="{% url 'academico:editar_calificacion' calificacion.pk %}" class="px-3 py-1 bg-yellow-500 text-white rounded text-sm hover:bg-yellow-600 transition-all" title="Editar">
+                                        <i data-lucide="pencil" class="w-4 h-4 inline"></i>
+                                    </a>
+                                    <a href="{% url 'academico:ver_expediente_estudiante' calificacion.estudiante.pk %}" class="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-all" title="Expediente">
+                                        <i data-lucide="file" class="w-4 h-4 inline"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Paginación -->
+        {% if is_paginated %}
+            <nav aria-label="Page navigation" class="mt-6">
+                <ul class="flex justify-center gap-1 flex-wrap">
+                    {% if page_obj.has_previous %}
+                        <li>
+                            <a class="px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50" href="?page=1&search={{ request.GET.search }}&estado={{ request.GET.estado }}">Primera</a>
+                        </li>
+                        <li>
+                            <a class="px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50" href="?page={{ page_obj.previous_page_number }}&search={{ request.GET.search }}&estado={{ request.GET.estado }}">Anterior</a>
+                        </li>
+                    {% endif %}
+                    
+                    <li class="px-4 py-2 bg-purple-600 text-white rounded"><span>{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+                    
+                    {% if page_obj.has_next %}
+                        <li>
+                            <a class="px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50" href="?page={{ page_obj.next_page_number }}&search={{ request.GET.search }}&estado={{ request.GET.estado }}">Siguiente</a>
+                        </li>
+                        <li>
+                            <a class="px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50" href="?page={{ page_obj.paginator.num_pages }}&search={{ request.GET.search }}&estado={{ request.GET.estado }}">Última</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    {% else %}
+        <div class="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-lg">
+            <p class="text-blue-800 m-0">
+                <i data-lucide="info" class="w-4 h-4 inline mr-2"></i>
+                No hay calificaciones que mostrar.
+            </p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

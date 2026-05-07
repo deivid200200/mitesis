@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Mi Perfil{% endblock %}
+
+{% block page_content %}
+<div class="max-w-4xl mx-auto px-6">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">
+        <i data-lucide="user" class="w-8 h-8 inline mr-2"></i>Editar Mi Perfil
+    </h1>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="mb-4 p-4 rounded-lg {% if message.tags == 'success' %}bg-green-50 border-l-4 border-green-500 text-green-700{% elif message.tags == 'error' %}bg-red-50 border-l-4 border-red-500 text-red-700{% elif message.tags == 'warning' %}bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700{% else %}bg-blue-50 border-l-4 border-blue-500 text-blue-700{% endif %}" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+
+        <!-- Información Personal -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-4">
+                <h3 class="text-lg font-semibold text-white m-0">Información Personal</h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="id_first_name" class="block text-sm font-medium text-gray-700 mb-1">Nombres *</label>
+                        <input type="text" class="w-full px-4 py-2 border {% if form.first_name.errors %}border-red-500 bg-red-50{% else %}border-gray-300{% endif %} rounded-lg focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500" 
+                               id="id_first_name" name="first_name" value="{{ form.first_name.value|default:'' }}" required>
+                        {% if form.first_name.errors %}<p class="mt-1 text-sm text-red-600">{{ form.first_name.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label for="id_last_name" class="block text-sm font-medium text-gray-700 mb-1">Apellidos *</label>
+                        <input type="text" class="w-full px-4 py-2 border {% if form.last_name.errors %}border-red-500 bg-red-50{% else %}border-gray-300{% endif %} rounded-lg focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500" 
+                               id="id_last_name" name="last_name" value="{{ form.last_name.value|default:'' }}" required>
+                        {% if form.last_name.errors %}<p class="mt-1 text-sm text-red-600">{{ form.last_name.errors.0 }}</p>{% endif %}
+                    </div>
+                </div>
+
+                <div>
+                    <label for="id_email" class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico *</label>
+                    <input type="email" class="w-full px-4 py-2 border {% if form.email.errors %}border-red-500 bg-red-50{% else %}border-gray-300{% endif %} rounded-lg focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500" 
+                           id="id_email" name="email" value="{{ form.email.value|default:'' }}" required>
+                    {% if form.email.errors %}<p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Datos de Perfil -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+                <h3 class="text-lg font-semibold text-white m-0">Datos de Perfil</h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label for="id_numero_identidad" class="block text-sm font-medium text-gray-700 mb-1">Número de Identidad</label>
+                    <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500" 
+                           id="id_numero_identidad" name="numero_identidad" value="{{ form.numero_identidad.value|default:'' }}">
+                    {% if form.numero_identidad.errors %}<p class="mt-1 text-sm text-red-600">{{ form.numero_identidad.errors.0 }}</p>{% endif %}
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="id_telefono" class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                        <input type="tel" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500" 
+                               id="id_telefono" name="telefono" value="{{ form.telefono.value|default:'' }}">
+                        {% if form.telefono.errors %}<p class="mt-1 text-sm text-red-600">{{ form.telefono.errors.0 }}</p>{% endif %}
+                    </div>
+                </div>
+
+                <div>
+                    <label for="id_direccion" class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+                    <textarea class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500" 
+                              id="id_direccion" name="direccion" rows="3">{{ form.direccion.value|default:'' }}</textarea>
+                    {% if form.direccion.errors %}<p class="mt-1 text-sm text-red-600">{{ form.direccion.errors.0 }}</p>{% endif %}
+                </div>
+
+                <div>
+                    <label for="id_foto" class="block text-sm font-medium text-gray-700 mb-1">Foto de Perfil</label>
+                    {% if form.instance.foto %}
+                        <div class="mb-3">
+                            <img src="{{ form.instance.foto.url }}" alt="Foto actual" class="w-32 h-32 object-cover rounded-lg border border-gray-300">
+                        </div>
+                    {% endif %}
+                    <input type="file" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500" 
+                           id="id_foto" name="foto" accept="image/*">
+                    <p class="text-xs text-gray-500 mt-2">Formatos: JPG, PNG. Máximo 5MB</p>
+                    {% if form.foto.errors %}<p class="mt-1 text-sm text-red-600">{{ form.foto.errors.0 }}</p>{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="flex gap-3 justify-end bg-white p-6 rounded-xl shadow-md">
+            <a href="{% url 'dashboard' %}" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all font-medium">
+                <i data-lucide="x" class="w-4 h-4 inline mr-2"></i>Cancelar
+            </a>
+            <button type="submit" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all font-medium">
+                <i data-lucide="check-circle" class="w-4 h-4 inline mr-2"></i>Guardar Cambios
+            </button>
+        </div>
+    </form>
+</div>
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}
+{% endblock %}

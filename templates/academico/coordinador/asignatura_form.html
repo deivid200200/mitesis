@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block page_content %}
+<div class="space-y-6">
+    <!-- Encabezado -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                {% if form.instance.pk %}
+                    <i data-lucide="pencil" class="w-6 h-6 text-purple-600"></i>
+                    Editar Asignatura
+                {% else %}
+                    <i data-lucide="plus-circle" class="w-6 h-6 text-purple-600"></i>
+                    Nueva Asignatura
+                {% endif %}
+            </h1>
+        </div>
+        <div>
+            {% if form.instance.modulo_id %}
+                <a href="{% url 'academico:asignatura_list' form.instance.modulo_id %}" 
+                   class="inline-flex items-center gap-2 px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-all text-sm font-medium">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    Cancelar
+                </a>
+            {% else %}
+                <a href="{% url 'academico:asignatura_list' modulo.pk %}" 
+                   class="inline-flex items-center gap-2 px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-all text-sm font-medium">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    Cancelar
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Formulario -->
+        <div class="lg:col-span-2 bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+            <div class="p-6">
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        <div class="p-4 bg-red-50 border-l-4 border-red-500 rounded-lg text-red-700">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="alert-circle" class="w-5 h-5"></i>
+                                {{ form.non_field_errors }}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Render manual de cada campo -->
+                    {% for field in form %}
+                        {% if field.field.widget.input_type == 'checkbox' %}
+                            <!-- Checkbox en línea con label -->
+                            <div class="flex items-center gap-3">
+                                <input type="checkbox" 
+                                       name="{{ field.name }}" 
+                                       id="{{ field.id_for_label }}"
+                                       {% if field.value %}checked{% endif %}
+                                       class="w-4 h-4 text-purple-600 bg-gray-50 border-gray-200 rounded focus:ring-purple-500">
+                                <label for="{{ field.id_for_label }}" class="text-sm font-semibold text-gray-700">
+                                    {{ field.label }}
+                                    {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+                                </label>
+                                {% if field.errors %}
+                                    <div class="ml-2">
+                                        {% for error in field.errors %}
+                                            <p class="text-red-600 text-sm flex items-center gap-1">
+                                                <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                                                {{ error }}
+                                            </p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% if field.help_text %}
+                                <p class="text-gray-400 text-sm mt-1 ml-7">{{ field.help_text }}</p>
+                            {% endif %}
+                        {% else %}
+                            <div>
+                                <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-1.5">
+                                    {{ field.label }}
+                                    {% if field.field.required %}
+                                        <span class="text-red-500">*</span>
+                                    {% endif %}
+                                </label>
+                                
+                                {% if field.field.widget.input_type == 'select' %}
+                                    <select name="{{ field.name }}" 
+                                            id="{{ field.id_for_label }}"
+                                            class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-purple-400 outline-none transition-all">
+                                        {% for choice in field.field.choices %}
+                                            <option value="{{ choice.0 }}" {% if field.value == choice.0 %}selected{% endif %}>
+                                                {{ choice.1 }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                {% elif field.field.widget.input_type == 'textarea' %}
+                                    <textarea name="{{ field.name }}" 
+                                              id="{{ field.id_for_label }}" 
+                                              rows="4"
+                                              class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-purple-400 outline-none transition-all">{{ field.value|default:'' }}</textarea>
+                                {% else %}
+                                    <input type="{{ field.field.widget.input_type }}" 
+                                           name="{{ field.name }}" 
+                                           id="{{ field.id_for_label }}" 
+                                           value="{{ field.value|default:'' }}"
+                                           {% if field.field.widget.attrs.placeholder %}placeholder="{{ field.field.widget.attrs.placeholder }}"{% endif %}
+                                           class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-purple-400 outline-none transition-all">
+                                {% endif %}
+                                
+                                {% if field.help_text %}
+                                    <p class="text-gray-400 text-sm mt-1.5">{{ field.help_text }}</p>
+                                {% endif %}
+                                
+                                {% if field.errors %}
+                                    <div class="mt-1.5">
+                                        {% for error in field.errors %}
+                                            <p class="text-red-600 text-sm flex items-center gap-1">
+                                                <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                                                {{ error }}
+                                            </p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    <!-- Botones -->
+                    <div class="flex gap-3 pt-4 border-t border-gray-100">
+                        <button type="submit" class="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all font-medium">
+                            <i data-lucide="check-circle" class="w-5 h-5"></i>
+                            {% if form.instance.pk %}
+                                Actualizar Asignatura
+                            {% else %}
+                                Crear Asignatura
+                            {% endif %}
+                        </button>
+                        {% if form.instance.modulo_id %}
+                            <a href="{% url 'academico:asignatura_list' form.instance.modulo_id %}" 
+                               class="inline-flex items-center gap-2 px-6 py-3 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-all font-medium">
+                                Cancelar
+                            </a>
+                        {% else %}
+                            <a href="{% url 'academico:asignatura_list' modulo.pk %}" 
+                               class="inline-flex items-center gap-2 px-6 py-3 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-all font-medium">
+                                Cancelar
+                            </a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Barra lateral de ayuda -->
+        <div>
+            <div class="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+                <div class="bg-blue-500 px-6 py-4">
+                    <h5 class="text-white font-semibold flex items-center gap-2">
+                        <i data-lucide="info" class="w-4 h-4"></i>
+                        Información
+                    </h5>
+                </div>
+                <div class="p-6 space-y-5">
+                    <div>
+                        <h6 class="font-semibold text-gray-700 mb-2">Campos requeridos:</h6>
+                        <ul class="space-y-1.5 text-sm text-gray-600 list-disc list-inside">
+                            <li>Nombre de la asignatura</li>
+                            <li>Código de asignatura</li>
+                            <li>Créditos</li>
+                        </ul>
+                    </div>
+                    
+                    <hr class="border-gray-200">
+                    
+                    <div>
+                        <h6 class="font-semibold text-gray-700 mb-2">Validaciones:</h6>
+                        <ul class="space-y-1.5 text-sm text-gray-600 list-disc list-inside">
+                            <li>Calificación mínima (por defecto 3.0)</li>
+                            <li>El código debe ser único en el módulo</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

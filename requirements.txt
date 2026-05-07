@@ -1,0 +1,7 @@
+Django
+Pillow
+reportlab
+django-crispy-forms
+crispy-bootstrap5
+openpyxl
+weasyprint

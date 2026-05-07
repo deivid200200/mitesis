@@ -1,0 +1,18 @@
+{
+  "name": "newproject",
+  "version": "1.0.0",
+  "description": "Sistema de Gestión de Maestrías",
+  "main": "manage.py",
+  "scripts": {
+    "dev": "tailwindcss -i ./static/css/input.css -o ./static/css/style.css --watch",
+    "build": "tailwindcss -i ./static/css/input.css -o ./static/css/style.css --minify"
+  },
+  "keywords": ["tailwind", "django"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "tailwindcss": "^3.4.1",
+    "postcss": "^8.4.31",
+    "autoprefixer": "^10.4.16"
+  }
+}

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acta de Culminación - Sistema de Maestrías</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #525659;
+            font-family: 'Times New Roman', Times, serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .word-page {
+            background: white;
+            width: 100%;
+            max-width: 215.9mm;
+            min-height: 279.4mm;
+            margin: 0 auto;
+            padding: 2.54cm;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .btn-print {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #2c3e66;
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Segoe UI', system-ui;
+            cursor: pointer;
+            margin-bottom: 24px;
+            transition: background 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        .btn-print:hover {
+            background-color: #1e2a4a;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+            .btn-print {
+                display: none !important;
+            }
+            .word-page {
+                box-shadow: none;
+                padding: 2.54cm;
+                margin: 0 auto;
+                width: 100%;
+            }
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 28px;
+            border-bottom: 1px solid #aaa;
+            padding-bottom: 15px;
+        }
+
+        .header-section h1 {
+            font-size: 16pt;
+            font-weight: bold;
+            text-decoration: underline;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .institution-name {
+            font-size: 13pt;
+            font-weight: bold;
+            margin: 8px 0 2px 0;
+        }
+
+        .dept-name {
+            font-size: 10.5pt;
+            color: #2c3e66;
+            font-weight: 500;
+        }
+
+        .student-data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0 20px 0;
+            border: none;
+            font-size: 11pt;
+        }
+
+        .student-data-table td {
+            padding: 5px 4px;
+            border: none;
+            vertical-align: top;
+        }
+
+        .student-data-table .label {
+            font-weight: 700;
+            width: 150px;
+            letter-spacing: 0.3px;
+        }
+
+        .info-box {
+            margin: 20px 0;
+            padding: 15px;
+            border-left: 4px solid #2c3e66;
+            background-color: #f5f5f5;
+            font-size: 11pt;
+        }
+
+        .info-box p {
+            margin: 8px 0;
+            text-align: left;
+        }
+
+        .constancia-text {
+            margin: 28px 0 0 0;
+            font-size: 11pt;
+            text-align: justify;
+            line-height: 1.4;
+        }
+
+        .signature-container {
+            margin-top: 55px;
+            display: flex;
+            justify-content: space-between;
+            gap: 30px;
+        }
+
+        .signature-box {
+            flex: 1;
+            text-align: center;
+        }
+
+        .signature-line {
+            border-top: 1px solid black;
+            width: 100%;
+            margin-bottom: 8px;
+            margin-top: 50px;
+        }
+
+        .signature-name {
+            font-weight: 700;
+            font-size: 11pt;
+            margin-top: 6px;
+        }
+
+        .signature-title {
+            font-size: 10pt;
+            color: #2c3e66;
+        }
+
+        .page-number {
+            margin-top: 35px;
+            text-align: right;
+            font-size: 9pt;
+            color: #4b5563;
+        }
+
+        .footer-text {
+            border-top: 1px solid #ccc;
+            margin-top: 20px;
+            padding-top: 10px;
+            font-size: 8.5pt;
+            text-align: center;
+            color: #4b5563;
+        }
+
+        @media (max-width: 650px) {
+            .word-page {
+                padding: 1.5cm;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<button class="btn-print" onclick="window.print();">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 5px;"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    Imprimir / Guardar como PDF
+</button>
+
+<div class="word-page">
+    <!-- ENCABEZADO OFICIAL -->
+    <div class="header-section">
+        <div class="institution-name">SISTEMA DE GESTIÓN ACADÉMICA - MAESTRÍAS</div>
+        <div class="dept-name">DIRECCIÓN DE REGISTRO Y CONTROL ACADÉMICO</div>
+        <h1>ACTA DE CULMINACIÓN DE ESTUDIOS</h1>
+        <p style="font-size: 10pt; margin-top: 6px;">Documento Oficial de Culminación de Maestría</p>
+    </div>
+
+    <!-- Fecha de emisión dinámica -->
+    <div style="text-align: right; margin-bottom: 12px; font-size: 10.5pt;">
+        Fecha de emisión: {% now "d \d\e F \d\e Y" %}
+    </div>
+
+    <!-- DATOS DEL ESTUDIANTE -->
+    <table class="student-data-table">
+        <tr>
+            <td class="label">ESTUDIANTE:</td>
+            <td><strong>{{ estudiante.usuario.get_full_name|default:"Nombre no registrado" }}</strong></td>
+            <td class="label">MATRÍCULA / CÓDIGO:</td>
+            <td><strong>{{ estudiante.matricula|default:"S/N" }}</strong></td>
+        </tr>
+        <tr>
+            <td class="label">PROGRAMA (MAESTRÍA):</td>
+            <td colspan="3">
+                {% if expediente and expediente.maestria %}
+                    {{ expediente.maestria.nombre|default:"No asignado" }}
+                {% else %}
+                    <em>Sin programa registrado</em>
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <td class="label">CORREO INSTITUCIONAL:</td>
+            <td>{{ estudiante.usuario.email|default:"—" }}</td>
+            <td class="label">ACTA Nº:</td>
+            <td>{{ acta.numero_acta|default:"---" }}</td>
+        </tr>
+        <tr>
+            <td class="label">PROMEDIO FINAL:</td>
+            <td colspan="3"><strong style="font-size: 12pt;">{{ acta.promedio_final|floatformat:2|default:"—" }}</strong> (sobre 5.0)</td>
+        </tr>
+    </table>
+
+    <!-- INFORMACIÓN GENERAL DEL ACTA -->
+    <div class="info-box">
+        <p><strong>Título Otorgado:</strong> {{ acta.titulo_otorgado|default:"Magíster en Educación" }}</p>
+        <p><strong>Fecha de Emisión del Acta:</strong> {{ acta.fecha_emision|date:"d \d\e F \d\e Y"|default:"---" }}</p>
+        {% if acta.fecha_graduacion %}
+            <p><strong>Fecha de Graduación:</strong> {{ acta.fecha_graduacion|date:"d \d\e F \d\e Y" }}</p>
+        {% endif %}
+        <p><strong>Estado del Acta:</strong> {{ acta.get_estado_display|default:"Generada" }}</p>
+        <p><strong>Créditos Completados:</strong> {{ expediente.creditos_aprobados|default:"0" }} créditos</p>
+    </div>
+
+    <!-- PÁRRAFO DE CONSTANCIA -->
+    <div class="constancia-text">
+        Por este medio se certifica que el(la) estudiante mencionado(a) ha completado satisfactoriamente 
+        todos los requisitos académicos y administrativos establecidos para obtener el grado de Maestría. 
+        El presente acta constituye documento oficial de culminación de estudios conforme a los reglamentos 
+        vigentes de esta institución educativa.
+    </div>
+
+    <!-- OBSERVACIONES (si existen) -->
+    {% if acta.observaciones %}
+        <div class="info-box" style="border-left-color: #eab308; background-color: #fef9e3;">
+            <p><strong>📌 Observaciones:</strong> {{ acta.observaciones }}</p>
+        </div>
+    {% endif %}
+
+    <!-- FIRMAS INSTITUCIONALES -->
+    <div class="signature-container">
+        <div class="signature-box">
+            <div class="signature-line"></div>
+            <div class="signature-name">{{ secretaria.get_full_name|default:"Secretaria Docente" }}</div>
+            <div class="signature-title">Secretaria Docente</div>
+            <div style="font-size: 8pt; margin-top: 4px;">Firma y sello</div>
+        </div>
+        <div class="signature-box">
+            <div class="signature-line"></div>
+            <div class="signature-name">
+                {% if coordinador %}
+                    {{ coordinador.get_full_name|default:"Coordinador del Programa" }}
+                {% else %}
+                    Coordinador del Programa
+                {% endif %}
+            </div>
+            <div class="signature-title">Coordinador del Programa</div>
+            <div style="font-size: 8pt; margin-top: 4px;">Firma y sello</div>
+        </div>
+        <div class="signature-box">
+            <div class="signature-line"></div>
+            <div class="signature-name">Director Académico</div>
+            <div class="signature-title">Director Académico</div>
+            <div style="font-size: 8pt; margin-top: 4px;">Vo. Bo. oficial</div>
+        </div>
+    </div>
+
+    <!-- NÚMERO DE PÁGINA Y VALIDACIÓN -->
+    <div class="page-number">
+        Documento generado electrónicamente • Página 1 de 1
+    </div>
+
+    <div class="footer-text">
+        Veracidad sujeta a validación con los registros oficiales del Sistema de Gestión de Maestrías.
+    </div>
+</div>
+
+</body>
+</html>

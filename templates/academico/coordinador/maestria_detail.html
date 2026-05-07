@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block page_content %}
+<div class="space-y-6">
+    <!-- Encabezado -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
+                <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="book-open" class="w-5 h-5 text-purple-600"></i>
+                </div>
+                {{ maestria.nombre }}
+            </h1>
+        </div>
+        <div class="flex gap-3">
+            <a href="{% url 'academico:maestria_update' maestria.pk %}" 
+               class="inline-flex items-center gap-2 p-3 bg-purple-500 hover:bg-amber-600 text-white rounded-lg transition-all text-sm font-medium">
+                <i data-lucide="pencil" class="w-4 h-4"></i>
+                Editar
+            </a>
+            <a href="{% url 'academico:maestria_list' %}" 
+               class="inline-flex items-center gap-2 p-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-all text-sm font-medium">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                Volver
+            </a>
+        </div>
+    </div>
+
+    <!-- Tarjetas de información general y fechas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Información General -->
+        <div class="bg-blue-600 rounded-xl border border-gray-100 card-shadow overflow-hidden">
+            <div class="bg-purple-600 px-6 py-4">
+                <h5 class="text-white font-semibold flex items-center gap-2">
+                    <i data-lucide="info" class="w-4 h-4"></i>
+                    Información General
+                </h5>
+            </div>
+            <div class="p-6">
+                <dl class="space-y-4">
+                    <div class="flex justify-between items-center pb-3 border-b border-gray-100">
+                        <dt class="text-sm font-semibold text-gray-700">Código:</dt>
+                        <dd class="text-sm font-bold text-gray-800 font-mono">{{ maestria.codigo }}</dd>
+                    </div>
+                    <div class="flex justify-between items-center pb-3 border-b border-gray-100">
+                        <dt class="text-sm font-semibold text-gray-700">Coordinador:</dt>
+                        <dd class="text-sm text-gray-800">{{ maestria.coordinador.get_full_name }}</dd>
+                    </div>
+                    <div class="flex justify-between items-center pb-3 border-b border-gray-100">
+                        <dt class="text-sm font-semibold text-gray-700">Créditos Totales:</dt>
+                        <dd class="text-sm text-gray-800">{{ maestria.creditos_totales }}</dd>
+                    </div>
+                    <div class="flex justify-between items-center pb-3 border-b border-gray-100">
+                        <dt class="text-sm font-semibold text-gray-700">Duración:</dt>
+                        <dd class="text-sm text-gray-800">{{ maestria.duracion_semestres }} semestres</dd>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <dt class="text-sm font-semibold text-gray-700">Estado:</dt>
+                        <dd>
+                            {% if maestria.activa %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-ms font-semibold bg-green-100 text-green-700">
+                                    Activa
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-ms font-semibold bg-red-100 text-red-700">
+                                    Inactiva
+                                </span>
+                            {% endif %}
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <!-- Fechas -->
+        <div class="rounded-xl border border-gray-100 card-shadow overflow-hidden">
+            <div class="bg-purple-600 px-6 py-4">
+                <h5 class="text-white font-semibold flex items-center gap-2">
+                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                    Fechas
+                </h5>
+            </div>
+            <div class="p-6">
+                <dl class="space-y-4">
+                    <div class="flex justify-between items-center pb-3 border-b border-gray-100">
+                        <dt class="text-sm font-semibold text-gray-700">Creada:</dt>
+                        <dd class="text-sm text-gray-800">{{ maestria.fecha_creacion|date:"d/m/Y H:i" }}</dd>
+                    </div>
+                    <div class="flex justify-between items-center pb-3 border-b border-gray-100">
+                        <dt class="text-sm font-semibold text-gray-700">Actualizada:</dt>
+                        <dd class="text-sm text-gray-800">{{ maestria.fecha_actualizacion|date:"d/m/Y H:i" }}</dd>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <dt class="text-sm font-semibold text-gray-700">Módulos:</dt>
+                        <dd class="text-sm font-bold text-purple-600">{{ maestria.modulos.count }}</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <!-- Descripción -->
+    {% if maestria.descripcion %}
+        <div class="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+            <div class="bg-purple-600 px-6 py-4">
+                <h5 class="text-white font-semibold flex items-center gap-2">
+                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                    Descripción
+                </h5>
+            </div>
+            <div class="p-6">
+                <p class="text-gray-700 leading-relaxed">{{ maestria.descripcion }}</p>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Módulos -->
+    <div class="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden ">
+        <!-- Cabecera de módulos -->
+        <div class="bg-purple-600 px-6 py-4 flex sm:flex-row justify-between items-start sm:items-center gap-3">
+            <h5 class="text-white font-semibold flex items-center gap-2">
+                <i data-lucide="layers" class="w-4 h-4"></i>
+                Módulos ({{ maestria.modulos.count }})
+            </h5>
+            <a href="{% url 'academico:modulo_create' maestria_id=maestria.pk %}" 
+               class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-all text-sm font-medium backdrop-blur-sm">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                Nuevo Módulo
+            </a>
+        </div>
+        <div class="p-6 overflow-x-auto">
+            {% if maestria.modulos.all %}
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-gray-200">
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Módulo</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Nombre</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Semestre</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Asignaturas</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Período</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Estado</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for modulo in maestria.modulos.all %}
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="py-3 px-4 font-bold text-gray-800">#{{ modulo.numero_modulo }}</td>
+                                <td class="py-3 px-4 text-gray-700">{{ modulo.nombre }}</td>
+                                <td class="py-3 px-4">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">
+                                        Semestre {{ modulo.semestre }}
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                                        {{ modulo.asignaturas.count }} asignaturas
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 text-gray-600">
+                                    {% if modulo.fecha_inicio and modulo.fecha_fin %}
+                                        {{ modulo.fecha_inicio|date:"d/m/Y" }} - {{ modulo.fecha_fin|date:"d/m/Y" }}
+                                    {% else %}
+                                        <span class="text-gray-400 italic">No definido</span>
+                                    {% endif %}
+                                </td>
+                                <td class="py-3 px-4">
+                                    {% if modulo.activo %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                                            Activo
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700">
+                                            Inactivo
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="py-3 px-4">
+                                    <div class="flex gap-2">
+                                        <a href="{% url 'academico:asignatura_list' modulo.pk %}" 
+                                           class="p-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors" title="Ver asignaturas">
+                                            <i data-lucide="book-marked" class="w-4 h-4"></i>
+                                        </a>
+                                        <a href="{% url 'academico:modulo_update' modulo.pk %}" 
+                                           class="p-2 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-lg transition-colors" title="Editar">
+                                            <i data-lucide="pencil" class="w-4 h-4"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="bg-amber-50 border-l-4 border-amber-500 rounded-lg p-5">
+                    <div class="flex items-start gap-3">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0"></i>
+                        <div>
+                            <p class="text-amber-800 font-medium mb-1">Sin módulos</p>
+                            <p class="text-amber-600 text-sm">
+                                Esta maestría aún no tiene módulos. 
+                                <a href="{% url 'academico:modulo_create' maestria_id=maestria.pk %}" class="font-semibold underline hover:text-amber-800">Crear el primer módulo</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

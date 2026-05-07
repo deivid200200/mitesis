@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block page_content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="mb-3">
+                <i class="bi bi-person-plus"></i> Asignar Profesor
+            </h1>
+            <p class="text-muted">Asignatura: {{ asignatura.nombre }}</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'academico:profesor_asignatura_list' asignatura.pk %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Cancelar
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Asignar Profesor
+                            </button>
+                            <a href="{% url 'academico:profesor_asignatura_list' asignatura.pk %}" class="btn btn-outline-secondary">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card bg-light">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Detalles de Asignatura</h5>
+                </div>
+                <div class="card-body small">
+                    <dl class="row">
+                        <dt class="col-sm-5">Código:</dt>
+                        <dd class="col-sm-7">{{ asignatura.codigo }}</dd>
+
+                        <dt class="col-sm-5">Módulo:</dt>
+                        <dd class="col-sm-7">{{ asignatura.modulo.nombre }}</dd>
+
+                        <dt class="col-sm-5">Créditos:</dt>
+                        <dd class="col-sm-7">{{ asignatura.creditos }}</dd>
+
+                        <dt class="col-sm-5">Profesores:</dt>
+                        <dd class="col-sm-7">{{ asignatura.profesores.count }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

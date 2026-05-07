@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block page_content %}
+<div class="space-y-6">
+    <!-- Encabezado -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                <i data-lucide="user" class="w-6 h-6 text-purple-600"></i>
+                Profesores - {{ asignatura.nombre }}
+            </h1>
+            <p class="text-gray-500 text-sm mt-1">
+                Módulo: {{ asignatura.modulo.nombre }} 
+                (Código: {{ asignatura.codigo }})
+            </p>
+        </div>
+        <div class="flex gap-3 flex-col sm:flex-row">
+            <a href="{% url 'academico:profesor_asignatura_create' asignatura.pk %}" 
+               class="inline-flex items-center gap-2 p-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all text-sm font-medium">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                Asignar Profesor
+            </a>
+            <a href="{% url 'academico:asignatura_list' asignatura.modulo_id %}" 
+               class="inline-flex items-center gap-2 p-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-all text-sm font-medium">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                Volver
+            </a>
+        </div>
+    </div>
+
+    {% if asignaciones %}
+        <!-- Tabla de profesores asignados -->
+        <div class="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-gray-800 text-white">
+                            <th class="text-left py-3 px-4 font-semibold">Profesor</th>
+                            <th class="text-left py-3 px-4 font-semibold">Correo</th>
+                            <th class="text-left py-3 px-4 font-semibold">Teléfono</th>
+                            <th class="text-left py-3 px-4 font-semibold">Fecha de Asignación</th>
+                            <th class="text-center py-3 px-4 font-semibold">Estado</th>
+                            <th class="text-left py-3 px-4 font-semibold">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for asignacion in asignaciones %}
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="py-3 px-4">
+                                    <strong class="text-gray-800">{{ asignacion.profesor.get_full_name }}</strong>
+                                </td>
+                                <td class="py-3 px-4 text-gray-600">{{ asignacion.profesor.email }}</td>
+                                <td class="py-3 px-4">
+                                    {% if asignacion.profesor.perfil.telefono %}
+                                        <span class="text-gray-700">{{ asignacion.profesor.perfil.telefono }}</span>
+                                    {% else %}
+                                        <span class="text-gray-400">-</span>
+                                    {% endif %}
+                                </td>
+                                <td class="py-3 px-4 text-gray-600">{{ asignacion.fecha_asignacion|date:"d/m/Y" }}</td>
+                                <td class="py-3 px-4 text-center">
+                                    {% if asignacion.activo %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                                            Activo
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700">
+                                            Inactivo
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="py-3 px-4">
+                                    <button onclick="if(confirm('¿Desasignar este profesor?')) window.location.href='#';" 
+                                            class="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors" 
+                                            title="Desasignar">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <!-- Estado vacío -->
+        <div class="bg-amber-50 border-l-4 border-amber-500 rounded-lg p-5">
+            <div class="flex items-start gap-3">
+                <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0"></i>
+                <div>
+                    <p class="text-amber-800 font-medium mb-1">Sin profesores asignados</p>
+                    <p class="text-amber-600 text-sm">
+                        Esta asignatura aún no tiene profesores asignados.
+                        <a href="{% url 'academico:profesor_asignatura_create' asignatura_id=asignatura.pk %}" class="font-semibold underline hover:text-amber-800">
+                            Asignar un profesor
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Información adicional en dos tarjetas -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Detalles de Asignatura -->
+        <div class="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+            <div class="bg-purple-600 px-6 py-4">
+                <h3 class="text-white font-semibold flex items-center gap-2">
+                    <i data-lucide="book-marked" class="w-4 h-4"></i>
+                    Detalles de Asignatura
+                </h3>
+            </div>
+            <div class="p-6 space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-semibold text-gray-700">Código:</span>
+                    <span class="text-sm text-gray-800 font-mono">{{ asignatura.codigo }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-semibold text-gray-700">Créditos:</span>
+                    <span class="text-sm text-gray-800">{{ asignatura.creditos }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-semibold text-gray-700">Horas Teóricas:</span>
+                    <span class="text-sm text-gray-800">{{ asignatura.horas_teoricas }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-semibold text-gray-700">Horas Prácticas:</span>
+                    <span class="text-sm text-gray-800">{{ asignatura.horas_practicas }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-semibold text-gray-700">Calificación Mínima:</span>
+                    <span class="text-sm text-gray-800">{{ asignatura.calificacion_minima }}/5.0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información Adicional -->
+        <div class="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+            <div class="bg-blue-500 px-6 py-4">
+                <h3 class="text-white font-semibold flex items-center gap-2">
+                    <i data-lucide="info" class="w-4 h-4"></i>
+                    Información Adicional
+                </h3>
+            </div>
+            <div class="p-6 space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-semibold text-gray-700">Tipo:</span>
+                    <span>
+                        {% if asignatura.es_obligatoria %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700">
+                                Obligatoria
+                            </span>
+                        {% else %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
+                                Electiva
+                            </span>
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-semibold text-gray-700">Estado:</span>
+                    <span>
+                        {% if asignatura.activa %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                                Activa
+                            </span>
+                        {% else %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700">
+                                Inactiva
+                            </span>
+                        {% endif %}
+                    </span>
+                </div>
+                {% if asignatura.descripcion %}
+                    <div class="pt-3 mt-3 border-t border-gray-100">
+                        <h6 class="text-sm font-semibold text-gray-700 mb-2">Descripción:</h6>
+                        <p class="text-sm text-gray-600 leading-relaxed">{{ asignatura.descripcion }}</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

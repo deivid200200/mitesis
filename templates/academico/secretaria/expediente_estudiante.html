@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+<div class="space-y-6">
+    <!-- Encabezado -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
+                <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="file-text" class="w-5 h-5 text-purple-600"></i>
+                </div>
+                Expediente de {{ estudiante.usuario.get_full_name }}
+            </h1>
+            <p class="text-gray-500 mt-1 ml-13">Matrícula: <span class="font-semibold text-gray-700">{{ estudiante.matricula }}</span></p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'academico:exportar_acta_calificaciones' estudiante.pk %}" 
+               class="inline-flex items-center gap-2 p-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all text-sm font-medium">
+                <i data-lucide="file-text" class="w-4 h-4"></i>
+                Acta Calificaciones
+            </a>
+            {% if expediente.acta_culminacion %}
+                <a href="{% url 'academico:exportar_acta_culminacion' estudiante.pk %}" 
+                   class="inline-flex items-center gap-2 p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all text-sm font-medium">
+                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                    Acta Culminación
+                </a>
+            {% else %}
+                <a href="{% url 'academico:generar_acta_culminacion' estudiante.pk %}" 
+                   class="inline-flex items-center gap-2 p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all text-sm font-medium">
+                    <i data-lucide="file-plus" class="w-4 h-4"></i>
+                    Generar Acta Culminación
+                </a>
+            {% endif %}
+            <a href="{% url 'academico:estudiante_list' %}" 
+               class="inline-flex items-center gap-2 p-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-all text-sm font-medium">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                Volver a Estudiantes
+            </a>
+        </div>
+    </div>
+
+    <!-- Información General del Estudiante -->
+    <div class="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+        <div class="bg-purple-600 px-6 py-4">
+            <h5 class="text-white font-semibold flex items-center gap-2">
+                <i data-lucide="id-card" class="w-4 h-4"></i>
+                Información del Estudiante
+            </h5>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-sm font-semibold text-gray-700">Nombre Completo:</span>
+                        <span class="text-sm text-gray-800">{{ estudiante.usuario.get_full_name }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-sm font-semibold text-gray-700">Email:</span>
+                        <span class="text-sm text-gray-800">{{ estudiante.usuario.email }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-sm font-semibold text-gray-700">Matrícula:</span>
+                        <span class="text-sm text-gray-800 font-mono">{{ estudiante.matricula }}</span>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-sm font-semibold text-gray-700">Estado:</span>
+                        <span>
+                            {% if estudiante.estado == 'activo' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                                    Activo
+                                </span>
+                            {% elif estudiante.estado == 'egresado' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                                    Egresado
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">
+                                    {{ estudiante.get_estado_display }}
+                                </span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-sm font-semibold text-gray-700">Fecha de Ingreso:</span>
+                        <span class="text-sm text-gray-800">{{ estudiante.fecha_ingreso|date:"d/m/Y" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Información del Expediente Académico -->
+    {% if expediente %}
+        <div class="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+            <div class="bg-purple-600 px-6 py-4">
+                <h5 class="text-white font-semibold flex items-center gap-2">
+                    <i data-lucide="trending-up" class="w-4 h-4"></i>
+                    Información Académica
+                </h5>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-sm font-semibold text-gray-700">Maestría:</span>
+                            <span class="text-sm text-gray-800">{{ expediente.maestria.nombre }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm font-semibold text-gray-700">Promedio General:</span>
+                            <span class="text-sm font-bold text-purple-600">{{ expediente.promedio_general|floatformat:2 }}</span>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-sm font-semibold text-gray-700">Créditos Aprobados:</span>
+                            <span class="text-sm text-gray-800">{{ expediente.creditos_aprobados }} / {{ expediente.creditos_cursados }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm font-semibold text-gray-700">Asignaturas Aprobadas:</span>
+                            <span class="text-sm text-gray-800">{{ expediente.asignaturas_aprobadas }} / {{ expediente.asignaturas_completadas }}</span>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-sm font-semibold text-gray-700">Estado General:</span>
+                            <span>
+                                {% if expediente.estado_general == 'activo' %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">Activo</span>
+                                {% elif expediente.estado_general == 'completado' %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">Completado</span>
+                                {% elif expediente.estado_general == 'en_prueba' %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">En Prueba Académica</span>
+                                {% elif expediente.estado_general == 'suspendido' %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700">Suspendido</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="bg-amber-50 border-l-4 border-amber-500 rounded-lg p-5">
+            <div class="flex items-start gap-3">
+                <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0"></i>
+                <p class="text-amber-800 font-medium">No hay expediente registrado para este estudiante.</p>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Inscripciones en Módulos -->
+    {% if inscripciones %}
+        <div class="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+            <div class="bg-purple-600 px-6 py-4">
+                <h5 class="text-white font-semibold flex items-center gap-2">
+                    <i data-lucide="book-open" class="w-4 h-4"></i>
+                    Inscripciones en Módulos
+                </h5>
+            </div>
+            <div class="p-6 overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-gray-200">
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Maestría</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Módulo</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Fecha Inscripción</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for inscripcion in inscripciones %}
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="py-3 px-4 text-gray-700">{{ inscripcion.maestria.nombre }}</td>
+                                <td class="py-3 px-4 text-gray-700">{{ inscripcion.modulo.nombre }}</td>
+                                <td class="py-3 px-4 text-gray-600">{{ inscripcion.fecha_inscripcion|date:"d/m/Y" }}</td>
+                                <td class="py-3 px-4">
+                                    {% if inscripcion.estado_inscripcion == 'inscrito' %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">Inscrito</span>
+                                    {% elif inscripcion.estado_inscripcion == 'cursando' %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">Cursando</span>
+                                    {% elif inscripcion.estado_inscripcion == 'completado' %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">Completado</span>
+                                    {% elif inscripcion.estado_inscripcion == 'retirado' %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700">Retirado</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="bg-purple-600 border-l-4 border-blue-500 rounded-lg p-5">
+            <div class="flex items-start gap-3">
+                <i data-lucide="info" class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"></i>
+                <p class="text-blue-800 font-medium">No hay inscripciones en módulos.</p>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Calificaciones -->
+    {% if calificaciones %}
+        <div class="bg-white rounded-xl border border-gray-100 card-shadow overflow-hidden">
+            <div class="bg-purple-600 px-6 py-4">
+                <h5 class="text-white font-semibold flex items-center gap-2">
+                    <i data-lucide="star" class="w-4 h-4"></i>
+                    Calificaciones
+                </h5>
+            </div>
+            <div class="p-6 overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-gray-200">
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Asignatura</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Parcial 1</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Parcial 2</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Trabajo</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Final</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Estado</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for calificacion in calificaciones %}
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="py-3 px-4 text-gray-700">{{ calificacion.asignatura.nombre }}</td>
+                                <td class="py-3 px-4">{{ calificacion.nota_parcial1|default:"-" }}</td>
+                                <td class="py-3 px-4">{{ calificacion.nota_parcial2|default:"-" }}</td>
+                                <td class="py-3 px-4">{{ calificacion.nota_trabajo|default:"-" }}</td>
+                                <td class="py-3 px-4 font-bold text-gray-800">{{ calificacion.nota_final|default:"-" }}</td>
+                                <td class="py-3 px-4">
+                                    {% if calificacion.estado == 'aprobada' %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">Aprobada</span>
+                                    {% elif calificacion.estado == 'reprobada' %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700">Reprobada</span>
+                                    {% elif calificacion.estado == 'pendiente' %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">Pendiente</span>
+                                    {% elif calificacion.estado == 'en_curso' %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">En Curso</span>
+                                    {% endif %}
+                                </td>
+                                <td class="py-3 px-4">
+                                    <a href="{% url 'academico:editar_calificacion' calificacion.pk %}" 
+                                       class="inline-flex items-center gap-1 px-3 py-1.5 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition-all text-xs font-medium">
+                                        <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                                        Editar
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-5">
+            <div class="flex items-start gap-3">
+                <i data-lucide="info" class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"></i>
+                <p class="text-blue-800 font-medium">No hay calificaciones registradas.</p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

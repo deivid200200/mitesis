@@ -1,0 +1,321 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Estudiantes - Sistema de Maestrías{% endblock %}
+
+{% block page_content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <nav class="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                <a href="{% url 'dashboard' %}" class="hover:text-purple-600 transition-colors">Dashboard</a>
+                <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                <span class="text-gray-700 font-medium">Estudiantes</span>
+            </nav>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center gap-3">
+                <div class="w-10 h-10 md:w-12 md:h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <i data-lucide="graduation-cap" class="w-5 h-5 md:w-6 md:h-6 text-purple-600"></i>
+                </div>
+                Gestión de Estudiantes
+            </h1>
+            <p class="text-sm text-gray-500 mt-2 ml-14">Administra y consulta la información de los estudiantes</p>
+        </div>
+        <div class="flex gap-3">
+            <a href="{% url 'academico:inscripcion_modulo_create' %}" class="px-3 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-all flex items-center gap-2 shadow-sm">
+                <i data-lucide="user-plus" class="w-4 h-4"></i>
+                <span>Inscribir Estudiante</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <div class="bg-white p-4 md:p-5 rounded-xl card-shadow border-l-4 border-purple-400 hover:shadow-lg transition-shadow">
+            <div class="flex justify-between items-center">
+                <div>
+                    <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">Total Estudiantes</p>
+                    <p class="text-2xl md:text-3xl font-bold text-gray-800 mt-1">{{ page_obj.paginator.count }}</p>
+                </div>
+                <div class="bg-purple-100 p-2 md:p-3 rounded-lg text-purple-600">
+                    <i data-lucide="users" class="w-5 h-5 md:w-6 md:h-6"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white p-4 md:p-5 rounded-xl card-shadow border-l-4 border-green-400 hover:shadow-lg transition-shadow">
+            <div class="flex justify-between items-center">
+                <div>
+                    <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">Activos</p>
+                    <p class="text-2xl md:text-3xl font-bold text-gray-800 mt-1" id="totalActivos">0</p>
+                </div>
+                <div class="bg-green-100 p-2 md:p-3 rounded-lg text-green-600">
+                    <i data-lucide="user-check" class="w-5 h-5 md:w-6 md:h-6"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white p-4 md:p-5 rounded-xl card-shadow border-l-4 border-blue-400 hover:shadow-lg transition-shadow">
+            <div class="flex justify-between items-center">
+                <div>
+                    <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">Egresados</p>
+                    <p class="text-2xl md:text-3xl font-bold text-gray-800 mt-1" id="totalEgresados">0</p>
+                </div>
+                <div class="bg-blue-100 p-2 md:p-3 rounded-lg text-blue-600">
+                    <i data-lucide="award" class="w-5 h-5 md:w-6 md:h-6"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white p-4 md:p-5 rounded-xl card-shadow border-l-4 border-orange-400 hover:shadow-lg transition-shadow">
+            <div class="flex justify-between items-center">
+                <div>
+                    <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">Inactivos</p>
+                    <p class="text-2xl md:text-3xl font-bold text-gray-800 mt-1" id="totalInactivos">0</p>
+                </div>
+                <div class="bg-orange-100 p-2 md:p-3 rounded-lg text-orange-600">
+                    <i data-lucide="user-x" class="w-5 h-5 md:w-6 md:h-6"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Búsqueda y Filtros -->
+    <div class="bg-white p-4 md:p-6 rounded-2xl card-shadow">
+        <form method="get" class="flex flex-col sm:flex-row gap-4">
+            <div class="flex-1 relative">
+                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none z-10">
+                    <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
+                </div>
+                <input 
+                    type="text" 
+                    name="search" 
+                    class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-200 focus:border-purple-400 outline-none transition-all" 
+                    placeholder="Buscar por nombre, matrícula o email..." 
+                    value="{{ request.GET.search|default:'' }}"
+                >
+            </div>
+            <div class="flex gap-2">
+                <button type="submit" class="px-6 py-2.5 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-all flex items-center justify-center gap-2 flex-1 sm:flex-none">
+                    <i data-lucide="search" class="w-4 h-4"></i>
+                    <span>Buscar</span>
+                </button>
+                {% if request.GET.search %}
+                    <a href="{% url 'academico:estudiante_list' %}" class="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2 flex-1 sm:flex-none">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                        <span>Limpiar</span>
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+        
+        {% if request.GET.search %}
+            <div class="mt-3 text-sm text-gray-500 flex items-center gap-1">
+                <i data-lucide="info" class="w-3 h-3"></i>
+                Resultados para: <span class="font-medium text-purple-600">"{{ request.GET.search }}"</span>
+                <span class="text-gray-400">({{ estudiantes|length }} encontrados)</span>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Tabla de Estudiantes -->
+    {% if estudiantes %}
+        <div class="bg-white rounded-2xl card-shadow overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left min-w-[800px] md:min-w-0">
+                    <thead class="bg-gray-50 border-b border-gray-100">
+                        <tr class="text-gray-500 text-xs uppercase font-semibold tracking-wider">
+                            <th class="px-4 md:px-6 py-4">Estudiante</th>
+                            <th class="px-4 md:px-6 py-4">Matrícula</th>
+                            <th class="px-4 md:px-6 py-4">Email</th>
+                            <th class="px-4 md:px-6 py-4">Estado</th>
+                            <th class="px-4 md:px-6 py-4 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50">
+                        {% for estudiante in estudiantes %}
+                            <tr class="hover:bg-purple-50/30 transition-colors student-row" data-estado="{{ estudiante.estado }}">
+                                <td class="px-4 md:px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-md flex-shrink-0">
+                                            {{ estudiante.usuario.get_full_name|first|upper }}
+                                        </div>
+                                        <div>
+                                            <p class="font-semibold text-gray-800 text-sm md:text-base">{{ estudiante.usuario.get_full_name|default:"Sin nombre" }}</p>
+                                            <p class="text-xs text-gray-400 hidden sm:block">ID: {{ estudiante.id }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 md:px-6 py-4">
+                                    <span class="font-mono text-sm text-gray-700">{{ estudiante.matricula }}</span>
+                                </td>
+                                <td class="px-4 md:px-6 py-4">
+                                    <span class="text-gray-500 text-xs md:text-sm">{{ estudiante.usuario.email|default:"Sin email" }}</span>
+                                </td>
+                                <td class="px-4 md:px-6 py-4">
+                                    {% if estudiante.estado == 'activo' %}
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-green-100 text-green-700 rounded-lg text-xs font-medium">
+                                            <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                                            Activo
+                                        </span>
+                                    {% elif estudiante.estado == 'egresado' %}
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium">
+                                            <i data-lucide="award" class="w-3 h-3"></i>
+                                            Egresado
+                                        </span>
+                                    {% elif estudiante.estado == 'suspendido' %}
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-red-100 text-red-700 rounded-lg text-xs font-medium">
+                                            <i data-lucide="alert-circle" class="w-3 h-3"></i>
+                                            Suspendido
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-xs">
+                                            {{ estudiante.get_estado_display }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 md:px-6 py-4">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <a href="{% url 'academico:ver_expediente_estudiante' estudiante.pk %}" 
+                                           class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all text-xs md:text-sm"
+                                           title="Ver expediente">
+                                            <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                                            <span class="hidden sm:inline">Expediente</span>
+                                        </a>
+                                        <a href="#" 
+                                           class="p-1.5 md:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                                           title="Editar estudiante">
+                                            <i data-lucide="edit-2" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Paginación Mejorada -->
+        {% if is_paginated %}
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="text-xs md:text-sm text-gray-500 order-2 sm:order-1">
+                    Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{ page_obj.paginator.count }} estudiantes
+                </div>
+                
+                <div class="flex items-center gap-1 md:gap-2 bg-white p-1 rounded-xl card-shadow order-1 sm:order-2">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+                           class="px-2 md:px-3 py-1.5 md:py-2 text-gray-600 hover:bg-purple-50 rounded-lg transition-all text-sm"
+                           title="Primera página">
+                            <i data-lucide="chevrons-left" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+                        </a>
+                        <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+                           class="px-2 md:px-3 py-1.5 md:py-2 text-gray-600 hover:bg-purple-50 rounded-lg transition-all text-sm"
+                           title="Página anterior">
+                            <i data-lucide="chevron-left" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+                        </a>
+                    {% else %}
+                        <button class="px-2 md:px-3 py-1.5 md:py-2 text-gray-300 cursor-not-allowed" disabled>
+                            <i data-lucide="chevrons-left" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+                        </button>
+                        <button class="px-2 md:px-3 py-1.5 md:py-2 text-gray-300 cursor-not-allowed" disabled>
+                            <i data-lucide="chevron-left" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+                        </button>
+                    {% endif %}
+
+                    <span class="px-3 md:px-4 py-1.5 md:py-2 bg-purple-600 text-white rounded-lg font-medium text-xs md:text-sm">
+                        {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+                           class="px-2 md:px-3 py-1.5 md:py-2 text-gray-600 hover:bg-purple-50 rounded-lg transition-all text-sm"
+                           title="Página siguiente">
+                            <i data-lucide="chevron-right" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+                        </a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+                           class="px-2 md:px-3 py-1.5 md:py-2 text-gray-600 hover:bg-purple-50 rounded-lg transition-all text-sm"
+                           title="Última página">
+                            <i data-lucide="chevrons-right" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+                        </a>
+                    {% else %}
+                        <button class="px-2 md:px-3 py-1.5 md:py-2 text-gray-300 cursor-not-allowed" disabled>
+                            <i data-lucide="chevron-right" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+                        </button>
+                        <button class="px-2 md:px-3 py-1.5 md:py-2 text-gray-300 cursor-not-allowed" disabled>
+                            <i data-lucide="chevrons-right" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    {% else %}
+        <!-- Estado Vacío -->
+        <div class="bg-white rounded-2xl card-shadow p-12 text-center">
+            <div class="flex flex-col items-center gap-4">
+                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center">
+                    <i data-lucide="graduation-cap" class="w-10 h-10 text-gray-400"></i>
+                </div>
+                <div>
+                    <p class="text-gray-500 font-medium text-lg">No hay estudiantes registrados</p>
+                    <p class="text-sm text-gray-400 mt-1">
+                        {% if request.GET.search %}
+                            No se encontraron estudiantes con "{{ request.GET.search }}"
+                        {% else %}
+                            Comienza inscribiendo el primer estudiante
+                        {% endif %}
+                    </p>
+                </div>
+                {% if request.GET.search %}
+                    <a href="{% url 'academico:estudiante_list' %}" class="mt-2 px-6 py-2.5 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-all">
+                        Limpiar búsqueda
+                    </a>
+                {% else %}
+                    <a href="{% url 'academico:inscripcion_modulo_create' %}" class="mt-2 px-6 py-2.5 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-all flex items-center gap-2">
+                        <i data-lucide="user-plus" class="w-4 h-4"></i>
+                        Inscribir Estudiante
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+    
+    // Calcular estadísticas de estudiantes
+    function calculateStats() {
+        const rows = document.querySelectorAll('.student-row');
+        let activos = 0;
+        let egresados = 0;
+        let inactivos = 0;
+        
+        rows.forEach(row => {
+            const estado = row.getAttribute('data-estado');
+            if (estado === 'activo') {
+                activos++;
+            } else if (estado === 'egresado') {
+                egresados++;
+            } else {
+                inactivos++;
+            }
+        });
+        
+        const totalActivosSpan = document.getElementById('totalActivos');
+        const totalEgresadosSpan = document.getElementById('totalEgresados');
+        const totalInactivosSpan = document.getElementById('totalInactivos');
+        
+        if (totalActivosSpan) totalActivosSpan.textContent = activos;
+        if (totalEgresadosSpan) totalEgresadosSpan.textContent = egresados;
+        if (totalInactivosSpan) totalInactivosSpan.textContent = inactivos;
+    }
+    
+    // Ejecutar cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', function() {
+        calculateStats();
+    });
+</script>
+{% endblock %}

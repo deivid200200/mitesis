@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acta de Calificaciones - Sistema de Maestrías</title>
+    <style>
+        /* ESTILO TIPO WORD / DOCUMENTO OFICIAL */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #525659;   /* fondo gris tipo visor de PDF/Word */
+            font-family: 'Times New Roman', Times, serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        /* Página tamaño carta */
+        .word-page {
+            background: white;
+            width: 100%;
+            max-width: 215.9mm;   /* Letter width */
+            min-height: 279.4mm;
+            margin: 0 auto;
+            padding: 1cm;      /* margen estándar Word (1 pulgada) */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        /* Botón de impresión */
+        .btn-print {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #2c3e66;
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Segoe UI', system-ui;
+            cursor: pointer;
+            margin-bottom: 24px;
+            transition: background 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        .btn-print:hover {
+            background-color: #1e2a4a;
+        }
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+            .btn-print {
+                display: none !important;
+            }
+            .word-page {
+                box-shadow: none;
+                padding: 2.54cm;
+                margin: 0 auto;
+                width: 100%;
+            }
+        }
+
+        /* ENCABEZADO INSTITUCIONAL */
+        .header-section {
+            text-align: center;
+            margin-bottom: 28px;
+            border-bottom: 1px solid #aaa;
+            padding-bottom: 15px;
+        }
+        .header-section h1 {
+            font-size: 16pt;
+            font-weight: bold;
+            text-decoration: underline;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+        .institution-name {
+            font-size: 13pt;
+            font-weight: bold;
+            margin: 8px 0 2px 0;
+        }
+        .dept-name {
+            font-size: 10.5pt;
+            color: #2c3e66;
+            font-weight: 500;
+        }
+
+        /* Tabla de datos del estudiante (estilo Word) */
+        .student-data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0 20px 0;
+            border: none;
+            font-size: 11pt;
+        }
+        .student-data-table td {
+            padding: 5px 4px;
+            border: none;
+            vertical-align: top;
+        }
+        .student-data-table .label {
+            font-weight: 700;
+            width: 150px;
+            letter-spacing: 0.3px;
+        }
+
+        /* Tabla de calificaciones con bordes negros */
+        .grades-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0 15px 0;
+            font-size: 10pt;
+        }
+        .grades-table th,
+        .grades-table td {
+            border: 1px solid #000000;
+            padding: 7px 6px;
+            vertical-align: middle;
+        }
+        .grades-table th {
+            background-color: #f4f4f4;
+            font-weight: 700;
+            text-align: center;
+            font-size: 10pt;
+        }
+        .grades-table td {
+            text-align: center;
+        }
+        .grades-table td:first-child,
+        .grades-table td:nth-child(2) {
+            text-align: left;
+        }
+        .text-left { text-align: left; }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+
+        /* Estados académicos */
+        .estado-aprobado {
+            font-weight: 600;
+            color: #006633;
+        }
+        .estado-reprobado {
+            font-weight: 600;
+            color: #a1220a;
+        }
+        .estado-pendiente {
+            font-weight: 600;
+            color: #b85c00;
+        }
+
+        /* Resumen final (promedio, créditos) */
+        .summary-section {
+            margin-top: 18px;
+            text-align: right;
+            font-size: 11pt;
+            border-top: 1px dashed #ccc;
+            padding-top: 12px;
+        }
+        .summary-line {
+            margin: 4px 0;
+        }
+
+        /* Párrafo de constancia */
+        .constancia-text {
+            margin: 28px 0 0 0;
+            font-size: 11pt;
+            text-align: justify;
+            line-height: 1.4;
+        }
+
+        /* Firmas institucionales */
+        .signature-container {
+            margin-top: 55px;
+            display: flex;
+            justify-content: space-between;
+            gap: 30px;
+        }
+        .signature-box {
+            flex: 1;
+            text-align: center;
+        }
+        .signature-line {
+            border-top: 1px solid black;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+        .signature-name {
+            font-weight: 700;
+            font-size: 11pt;
+            margin-top: 6px;
+        }
+        .signature-title {
+            font-size: 10pt;
+            color: #2c3e66;
+        }
+
+        .page-number {
+            margin-top: 35px;
+            text-align: right;
+            font-size: 9pt;
+            color: #4b5563;
+        }
+
+        .no-data-message {
+            text-align: center;
+            padding: 40px;
+            font-size: 12pt;
+            color: #4b5563;
+            border: 1px solid #ddd;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 650px) {
+            .word-page {
+                padding: 1.5cm;
+            }
+            .grades-table th, .grades-table td {
+                padding: 4px 3px;
+                font-size: 8.5pt;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<button class="btn-print no-print" onclick="window.print();">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 5px;"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    Imprimir / Guardar como PDF
+</button>
+
+<div class="word-page">
+    <!-- ENCABEZADO OFICIAL -->
+    <div class="header-section">
+        <div class="institution-name">SISTEMA DE GESTIÓN ACADÉMICA - MAESTRÍAS</div>
+        <div class="dept-name">DIRECCIÓN DE REGISTRO Y CONTROL ACADÉMICO</div>
+        <h1>ACTA DE CALIFICACIONES FINALES</h1>
+        <p style="font-size: 10pt; margin-top: 6px;">Documento Oficial de Rendimiento Académico</p>
+    </div>
+
+    <!-- Fecha de emisión dinámica -->
+    <div class="text-right" style="margin-bottom: 12px; font-size: 10.5pt;">
+        Fecha de emisión: {% now "d \d\e F \d\e Y" %}
+    </div>
+
+    <!-- DATOS DEL ESTUDIANTE (estructura completa del primer template) -->
+    <table class="student-data-table">
+        <tr>
+            <td class="label">ESTUDIANTE:</td>
+            <td><strong>{{ estudiante.usuario.get_full_name|default:"Nombre no registrado" }}</strong></td>
+            <td class="label">MATRÍCULA / CÓDIGO:</td>
+            <td><strong>{{ estudiante.matricula|default:"S/N" }}</strong></td>
+        </tr>
+        <tr>
+            <td class="label">PROGRAMA (MAESTRÍA):</td>
+            <td colspan="3">
+                {% if expediente and expediente.maestria %}
+                    {{ expediente.maestria.nombre|default:"No asignado" }}
+                {% else %}
+                    <em>Sin programa registrado</em>
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <td class="label">CORREO INSTITUCIONAL:</td>
+            <td>{{ estudiante.usuario.email|default:"—" }}</td>
+            <td class="label">PERIODO ACADÉMICO:</td>
+            <td>{% now "Y" %} - {% if now|date:"m" >= "01" and now|date:"m" <= "06" %}PRIMER SEMESTRE{% else %}SEGUNDO SEMESTRE{% endif %}</td>
+        </tr>
+        <tr>
+            <td class="label">PROMEDIO GENERAL ACUMULADO:</td>
+            <td colspan="3"><strong style="font-size: 12pt;">{{ promedio_ponderado|default:"—" }}</strong> (sobre 5.0)</td>
+        </tr>
+    </table>
+
+    <p style="margin: 10px 0 5px 0; font-size: 10.5pt;">
+        Calificaciones detalladas obtenidas en los módulos cursados:
+    </p>
+
+    <!-- TABLA DE CALIFICACIONES CON TODAS LAS COLUMNAS DEL PRIMER TEMPLATE -->
+    {% if calificaciones %}
+    <table class="grades-table">
+        <thead>
+            <tr>
+                <th>CÓDIGO</th>
+                <th>ASIGNATURA / MÓDULO</th>
+                <th>CRÉD.</th>
+                <th>PARCIAL 1</th>
+                <th>PARCIAL 2</th>
+                <th>TRABAJO</th>
+                <th>NOTA FINAL</th>
+                <th>ESTADO</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for calificacion in calificaciones %}
+            <tr>
+                <td><code>{{ calificacion.asignatura.codigo|default:"---" }}</code></td>
+                <td class="text-left">{{ calificacion.asignatura.nombre|default:"Sin especificar" }}</td>
+                <td>{{ calificacion.asignatura.creditos|default:"0" }}</td>
+                <td>{% if calificacion.nota_parcial1 %}{{ calificacion.nota_parcial1|floatformat:2 }}{% else %}—{% endif %}</td>
+                <td>{% if calificacion.nota_parcial2 %}{{ calificacion.nota_parcial2|floatformat:2 }}{% else %}—{% endif %}</td>
+                <td>{% if calificacion.nota_trabajo %}{{ calificacion.nota_trabajo|floatformat:2 }}{% else %}—{% endif %}</td>
+                <td><strong>{% if calificacion.nota_final %}{{ calificacion.nota_final|floatformat:2 }}{% else %}—{% endif %}</strong></td>
+                <td>
+                    {% if calificacion.estado == 'aprobada' %}
+                        <span class="estado-aprobado">APROBADO</span>
+                    {% elif calificacion.estado == 'reprobada' %}
+                        <span class="estado-reprobado">REPROBADO</span>
+                    {% elif calificacion.estado == 'pendiente' %}
+                        <span class="estado-pendiente">PENDIENTE</span>
+                    {% else %}
+                        <span>{{ calificacion.estado|upper|default:"—" }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- RESUMEN: PROMEDIO PONDERADO Y TOTAL DE CRÉDITOS -->
+    <div class="summary-section">
+        <div class="summary-line">
+            <strong>PROMEDIO PONDERADO (semestre):</strong> 
+            <span>{{ promedio_ponderado|default:"—" }}</span>
+        </div>
+        <div class="summary-line" id="total-creditos-container">
+            <strong>TOTAL CRÉDITOS CURSADOS:</strong> 
+            <span id="total-creditos-valor">calculando...</span>
+        </div>
+    </div>
+
+    {% else %}
+        <div class="no-data-message">
+            ⚠️ No hay calificaciones registradas para este estudiante en el período consultado.
+        </div>
+    {% endif %}
+
+    <!-- PÁRRAFO DE CONSTANCIA (estilo documento formal) -->
+    <div class="constancia-text">
+        Para constancia de lo anterior, se expide la presente acta de calificaciones a solicitud del interesado, 
+        con base en los registros oficiales del Sistema de Gestión de Maestrías. Los datos aquí reflejados 
+        corresponden al historial académico del estudiante hasta la fecha de emisión.
+    </div>
+
+    <!-- FIRMAS INSTITUCIONALES (similar al segundo template) -->
+    <div class="signature-container">
+        <div class="signature-box">
+            <div class="signature-line"></div>
+            <div class="signature-name">{{ secretaria.get_full_name|default:"Secretaria Docente" }}</div>
+            <div class="signature-title">Secretaria Docente</div>
+            <div style="font-size: 8pt; margin-top: 4px;">Firma y sello</div>
+        </div>
+        <div class="signature-box">
+            <div class="signature-line"></div>
+            <div class="signature-name">
+                {% if coordinador %}
+                    {{ coordinador.get_full_name|default:"Coordinador Académico" }}
+                {% else %}
+                    Coordinador Académico
+                {% endif %}
+            </div>
+            <div class="signature-title">Coordinador Académico</div>
+            <div style="font-size: 8pt; margin-top: 4px;">Firma y sello</div>
+        </div>
+
+    </div>
+
+    <!-- NÚMERO DE PÁGINA Y VALIDACIÓN -->
+    <div class="page-number">
+        Documento generado electrónicamente • Página 1 de 1
+    </div>
+
+    <div style="border-top: 1px solid #ccc; margin-top: 20px; padding-top: 10px; font-size: 8.5pt; text-align: center; color: #4b5563;">
+        Veracidad sujeta a validación con los registros oficiales del Sistema de Gestión de Maestrías.
+    </div>
+</div>
+
+<!-- Script para calcular solo el total de créditos (el promedio ya viene del backend) -->
+<script>
+    (function() {
+        // Obtener todas las filas de calificaciones (excluyendo el thead)
+        const gradeRows = document.querySelectorAll('.grades-table tbody tr');
+        let totalCreditos = 0;
+
+        gradeRows.forEach(row => {
+            // La columna de créditos es la tercera (índice 2)
+            const creditCell = row.cells[2];
+            
+            if (creditCell) {
+                let credValue = parseFloat(creditCell.innerText.trim());
+                if (!isNaN(credValue)) {
+                    totalCreditos += credValue;
+                }
+            }
+        });
+        
+        // Actualizar créditos totales
+        const spanCreditos = document.getElementById('total-creditos-valor');
+        if (spanCreditos) {
+            spanCreditos.innerText = totalCreditos;
+        }
+    })();
+</script>
+</body>
+</html>

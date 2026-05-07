@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Perfil y Rol{% endblock %}
+
+{% block page_content %}
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                <div class="bg-purple-100 p-2 rounded-xl text-purple-600">
+                    <i data-lucide="settings" class="w-6 h-6"></i>
+                </div>
+                Editar Perfil y Rol
+            </h1>
+            <p class="text-gray-400 mt-1">Modifique los datos del perfil y el rol del usuario</p>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="mb-4 p-4 rounded-lg {% if message.tags == 'success' %}bg-green-50 border-l-4 border-green-500 text-green-700{% elif message.tags == 'error' %}bg-red-50 border-l-4 border-red-500 text-red-700{% elif message.tags == 'warning' %}bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700{% else %}bg-blue-50 border-l-4 border-blue-500 text-blue-700{% endif %}">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}alert-circle{% elif message.tags == 'warning' %}alert-triangle{% else %}info{% endif %}" class="w-5 h-5"></i>
+                    <span>{{ message }}</span>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- User Info Card -->
+    <div class="bg-white rounded-2xl card-shadow overflow-hidden transition-all">
+        <div class="bg-gradient-to-r from-purple-600 to-purple-500 px-8 py-5 flex items-center justify-between">
+            <div>
+                <h3 class="text-lg font-bold text-white">{{ form.instance.usuario.get_full_name|default:form.instance.usuario.username }}</h3>
+                <p class="text-purple-200 text-sm mt-1">{{ form.instance.usuario.email }}</p>
+            </div>
+            <div class="bg-white/20 p-3 rounded-xl">
+                <i data-lucide="user-circle" class="w-6 h-6 text-white"></i>
+            </div>
+        </div>
+        <div class="p-8 grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div>
+                <p class="text-xs text-gray-400 uppercase font-semibold tracking-wider mb-2">Usuario</p>
+                <p class="text-sm font-semibold text-gray-800">{{ form.instance.usuario.username }}</p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-400 uppercase font-semibold tracking-wider mb-2">Rol Actual</p>
+                <span class="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-100 text-purple-700 rounded-full text-sm font-semibold">
+                    <i data-lucide="shield" class="w-3.5 h-3.5"></i>
+                    {{ form.instance.get_rol_display }}
+                </span>
+            </div>
+            <div>
+                <p class="text-xs text-gray-400 uppercase font-semibold tracking-wider mb-2">Estado</p>
+                <span class="inline-flex items-center gap-1 px-3 py-1.5 {% if form.instance.activo %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %} rounded-full text-sm font-semibold">
+                    <i data-lucide="{% if form.instance.activo %}check-circle{% else %}x-circle{% endif %}" class="w-3.5 h-3.5"></i>
+                    {% if form.instance.activo %}Activo{% else %}Inactivo{% endif %}
+                </span>
+            </div>
+            <div>
+                <p class="text-xs text-gray-400 uppercase font-semibold tracking-wider mb-2">Se Unió</p>
+                <p class="text-sm font-semibold text-gray-800 flex items-center gap-1">
+                    <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
+                    {{ form.instance.fecha_creacion|date:"d/m/Y" }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <form method="post" class="space-y-8">
+        {% csrf_token %}
+
+        <!-- Role & Status Card -->
+        <div class="bg-white rounded-2xl card-shadow overflow-hidden transition-all">
+            <div class="bg-gradient-to-r from-indigo-600 to-indigo-500 px-8 py-5 flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-bold text-white">Configuración de Rol</h3>
+                    <p class="text-indigo-200 text-sm mt-1">Defina el rol y estado del usuario</p>
+                </div>
+                <div class="bg-white/20 p-3 rounded-xl">
+                    <i data-lucide="sliders" class="w-6 h-6 text-white"></i>
+                </div>
+            </div>
+            <div class="p-8 space-y-6">
+                <div>
+                    <label for="id_rol" class="block text-sm font-medium text-gray-700 mb-2">Rol del Usuario <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <select class="w-full px-4 py-3 border {% if form.rol.errors %}border-red-300 bg-red-50{% else %}border-gray-200{% endif %} rounded-xl focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all appearance-none bg-white" 
+                                id="id_rol" name="rol" required>
+                            <option value="">-- Seleccionar rol --</option>
+                            {% for value, label in form.fields.rol.choices %}
+                                {% if value %}
+                                    <option value="{{ value }}" {% if form.instance.rol == value %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400"></i>
+                        </div>
+                    </div>
+                    {% if form.rol.errors %}
+                        <p class="mt-2 text-sm text-red-600 flex items-center gap-1">
+                            <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                            {{ form.rol.errors.0 }}
+                        </p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="id_activo" class="block text-sm font-medium text-gray-700 mb-3">Estado del Perfil</label>
+                    <div class="flex items-start p-4 border {% if form.activo.errors %}border-red-300 bg-red-50{% else %}border-gray-200{% endif %} rounded-xl bg-gray-50/50 transition-all">
+                        <input class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mt-0.5" type="checkbox" id="id_activo" name="activo"
+                               {% if form.instance.activo %}checked{% endif %}>
+                        <label class="ml-3 cursor-pointer" for="id_activo">
+                            <span class="font-semibold text-gray-800">Perfil Activo</span>
+                            <p class="text-xs text-gray-500 mt-1">Desmarcar para desactivar este usuario. Los usuarios inactivos no pueden iniciar sesión.</p>
+                        </label>
+                    </div>
+                    {% if form.activo.errors %}
+                        <p class="mt-2 text-sm text-red-600 flex items-center gap-1">
+                            <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                            {{ form.activo.errors.0 }}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Data Card -->
+        <div class="bg-white rounded-2xl card-shadow overflow-hidden transition-all">
+            <div class="bg-gradient-to-r from-blue-600 to-blue-500 px-8 py-5 flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-bold text-white">Datos de Perfil</h3>
+                    <p class="text-blue-200 text-sm mt-1">Información complementaria del usuario</p>
+                </div>
+                <div class="bg-white/20 p-3 rounded-xl">
+                    <i data-lucide="id-card" class="w-6 h-6 text-white"></i>
+                </div>
+            </div>
+<!-- Section: Datos de Perfil (dentro de la tarjeta Profile Data Card) -->
+<div class="p-8 space-y-6">
+    <div>
+        <label for="id_numero_identidad" class="block text-sm font-medium text-gray-700 mb-2">Número de Identidad</label>
+        <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <i data-lucide="credit-card" class="w-5 h-5 text-gray-400"></i>
+            </div>
+            <input type="text" class="w-full pl-12 pr-4 py-3 border {% if form.numero_identidad.errors %}border-red-300 bg-red-50{% else %}border-gray-200{% endif %} rounded-xl focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all" 
+                   id="id_numero_identidad" name="numero_identidad" value="{{ form.numero_identidad.value|default:'' }}" placeholder="ej. 12345678">
+        </div>
+        {% if form.numero_identidad.errors %}
+            <p class="mt-2 text-sm text-red-600 flex items-center gap-1">
+                <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                {{ form.numero_identidad.errors.0 }}
+            </p>
+        {% endif %}
+    </div>
+
+    <div>
+        <label for="id_telefono" class="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
+        <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <i data-lucide="phone" class="w-5 h-5 text-gray-400"></i>
+            </div>
+            <input type="tel" class="w-full pl-12 pr-4 py-3 border {% if form.telefono.errors %}border-red-300 bg-red-50{% else %}border-gray-200{% endif %} rounded-xl focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all" 
+                   id="id_telefono" name="telefono" value="{{ form.telefono.value|default:'' }}" placeholder="ej. +56 9 1234 5678">
+        </div>
+        {% if form.telefono.errors %}
+            <p class="mt-2 text-sm text-red-600 flex items-center gap-1">
+                <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                {{ form.telefono.errors.0 }}
+            </p>
+        {% endif %}
+    </div>
+
+    <div>
+        <label for="id_direccion" class="block text-sm font-medium text-gray-700 mb-2">Dirección</label>
+        <div class="relative">
+            <div class="absolute top-3.5 left-0 pl-4 pointer-events-none">
+                <i data-lucide="map-pin" class="w-5 h-5 text-gray-400"></i>
+            </div>
+            <textarea class="w-full pl-12 pr-4 py-3 border {% if form.direccion.errors %}border-red-300 bg-red-50{% else %}border-gray-200{% endif %} rounded-xl focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all" 
+                      id="id_direccion" name="direccion" rows="3" placeholder="ej. Av. Principal 123, Ciudad">{{ form.direccion.value|default:'' }}</textarea>
+        </div>
+        {% if form.direccion.errors %}
+            <p class="mt-2 text-sm text-red-600 flex items-center gap-1">
+                <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                {{ form.direccion.errors.0 }}
+            </p>
+        {% endif %}
+    </div>
+</div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="bg-white rounded-2xl card-shadow p-6">
+            <div class="flex flex-col sm:flex-row gap-3 justify-end">
+                <a href="{% url 'usuario_list' %}" class="px-6 py-3 border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center justify-center gap-2 font-medium">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    Cancelar
+                </a>
+                <button type="submit" class="px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-all flex items-center justify-center gap-2 font-medium shadow-lg shadow-purple-200 hover:shadow-purple-300">
+                    <i data-lucide="save" class="w-4 h-4"></i>
+                    Guardar Cambios
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Last Update Info -->
+    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg flex items-center gap-3">
+        <i data-lucide="clock" class="w-5 h-5 text-blue-500 flex-shrink-0"></i>
+        <p class="text-sm text-blue-800">
+            <strong>Último cambio:</strong> {{ form.instance.fecha_actualizacion|date:"d/m/Y H:i" }}
+        </p>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}
+{% endblock %}
