@@ -174,10 +174,4 @@ Genera automáticamente cuando el estudiante aprueba todas las asignaturas.
 - Cálculo de promedio ponderado
 - Sistema de apelaciones
 
-## Soporte
 
-Para reportar problemas o solicitar nuevas funcionalidades, contacte al equipo de desarrollo.
-
-## Licencia
-
-Este proyecto está bajo licencia MIT.
