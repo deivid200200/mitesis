@@ -1,152 +1,223 @@
-# Sistema de Gestión Académica de Maestrías
+# Sistema de Gestión de Maestrías
 
-## Descripción
-Sistema web completo para la gestión de información académica de programas de maestría con soporte para múltiples roles de usuario.
+Un sistema web completo para gestionar programas de posgrado. Desde la inscripción de estudiantes hasta la generación de documentos de graduación, todo en un solo lugar.
 
-## Características principales
+## ¿Qué puedes hacer aquí?
 
-### Roles de usuario:
-1. **Administrador**: Gestión de usuarios y cuentas del sistema
-2. **Coordinador de Maestría**: Registro de módulos, asignaturas y asignación de profesores
-3. **Profesor**: Registro de calificaciones de estudiantes
-4. **Secretaria Docente**: Inscripción de estudiantes, edición de notas y generación de documentos
-5. **Estudiante**: Visualización de notas, expediente y recorrido académico
+### Para Administradores
+- Gestionar todos los usuarios del sistema
+- Asignar roles (coordinador, profesor, secretaria, estudiante)
+- Ver estadísticas generales: total de usuarios, activos, inactivos
+- Monitorear la distribución de roles con gráficos
+- Cambiar contraseñas de usuarios
+- Activar/desactivar perfiles
 
-### Funcionalidades
-
-#### Coordinador
-- Crear y gestionar maestrías
-- Crear módulos de maestría
-- Crear asignaturas y asignarlas a módulos
+### Para Coordinadores de Maestría
+- Crear y gestionar maestrías con código, descripción y duración
+- Organizar módulos (semestres) dentro de cada maestría
+- Crear asignaturas para cada módulo con créditos y horas
 - Asignar profesores a asignaturas
+- Ver un panel con todas tus maestrías
+- Editar datos en cualquier momento
 
-#### Profesor
-- Ver asignaturas asignadas
-- Registrar calificaciones de estudiantes
-  - Nota Parcial 1
-  - Nota Parcial 2
-  - Nota de Trabajo
-  - Nota Final
+### Para Profesores
+- Ver las asignaturas que tienes a cargo
+- Registrar notas a estudiantes:
+  - Nota parcial 1 y 2
+  - Nota de trabajo/proyecto
+  - Nota final
+- Ver el listado de estudiantes inscritos
+- Dashboard con resumen de asignaturas y estudiantes
 
-#### Secretaria Docente
-- Listar estudiantes del sistema
+### Para Secretaria Docente
 - Inscribir estudiantes en módulos
-- Editar calificaciones (corrección de errores)
-- Ver expediente completo del estudiante
-- Exportar acta de notas en Excel
-- Generar acta de culminación cuando se completan todas las asignaturas
+- Ver el listado completo de estudiantes
+- Editar calificaciones si hay errores
+- Ver el expediente completo de cada estudiante
+- Generar reportes en PDF del expediente
+- Exportar actas de calificaciones en Excel
+- Crear actas de culminación para graduados
 
-#### Estudiante
-- Ver expediente académico completo
-- Ver todas las notas por asignatura
-- Ver módulos inscritos
-- Ver promedio general
-- Calcular créditos aprobados
+### Para Estudiantes
+- Ver tu expediente académico completo
+- Consultar todas tus notas por asignatura
+- Ver en qué módulos estás inscrito
+- Calcular tu promedio general
+- Seguimiento del progreso con gráfico visual
+- Acceder a tus documentos académicos
 
-#### Administrador
-- Gestionar usuarios
-- Ver estadísticas del sistema
-- Crear nuevos usuarios
+## Empezar
 
-## Instalación
+### Lo que necesitas
+- Python 3.8 o superior
+- Django 6.0
+- Un navegador web cualquiera
 
-### Requisitos previos
-- Python 3.8+
-- Django 6.0+
-- virtualenv o conda
+### Instalación rápida
 
-### Pasos de instalación
-
-1. Crear y activar el entorno virtual:
+1. **Clonar o descargar el proyecto**
 ```bash
-python -m venv enviroment
-.\enviroment\Scripts\Activate  # Windows
-source enviroment/bin/activate  # Linux/Mac
+git clone https://github.com/deivid200200/mitesis.git
+cd mitesis
 ```
 
-2. Instalar dependencias:
+2. **Configurar el entorno virtual**
+
+En Windows:
+```bash
+python -m venv enviroment
+.\enviroment\Scripts\Activate
+```
+
+En Linux/Mac:
+```bash
+python -m venv enviroment
+source enviroment/bin/activate
+```
+
+3. **Instalar las dependencias**
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Realizar migraciones:
+4. **Ejecutar migraciones**
 ```bash
-python manage.py makemigrations
 python manage.py migrate
 ```
 
-4. Crear datos de prueba:
+5. **Cargar datos de ejemplo**
 ```bash
 python manage.py generar_datos
 ```
 
-5. Crear superusuario (opcional, ya que el comando anterior crea usuarios de prueba):
-```bash
-python manage.py createsuperuser
-```
-
-6. Ejecutar servidor de desarrollo:
+6. **Iniciar el servidor**
 ```bash
 python manage.py runserver
 ```
 
-7. Acceder a la aplicación:
+7. **Abrir en el navegador**
 ```
 http://localhost:8000/login/
 ```
 
-## Credenciales de prueba
+## Cuentas de prueba
 
-Después de ejecutar `python manage.py generar_datos`, puedes usar:
-
-| Usuario | Contraseña | Rol |
-|---------|-----------|-----|
-| admin | admin | Administrador |
-| coordinador | coordinador | Coordinador de Maestría |
-| profesor | profesor | Profesor |
-| secretaria | secretaria | Secretaria Docente |
-| estudiante | estudiante | Estudiante |
-
-## Estructura del proyecto
+Después de correr el comando `generar_datos`, tienes estas cuentas disponibles:
 
 ```
-newproject/
-├── academico/              # App para gestión académica
-│   ├── models.py          # Modelos: Maestría, Módulo, Asignatura, etc.
+Admin:       usuario: admin            | contraseña: admin
+Coordinador: usuario: coordinador      | contraseña: coordinador
+Profesor:    usuario: profesor         | contraseña: profesor
+Secretaria:  usuario: secretaria       | contraseña: secretaria
+Estudiante:  usuario: estudiante       | contraseña: estudiante
+```
+
+## Cómo funciona
+
+### Flujo típico
+
+1. **El Coordinador** crea una maestría con sus módulos y asignaturas
+2. **El Coordinador** asigna profesores a esas asignaturas
+3. **La Secretaria** inscribe estudiantes en los módulos
+4. **El Profesor** registra las calificaciones de sus estudiantes
+5. **El Estudiante** consulta sus notas y expediente
+6. **La Secretaria** genera reportes y actas cuando sea necesario
+
+### Datos que se guardan
+
+- **Maestrías**: Nombre, código, descripción, duración, coordinador
+- **Módulos**: Número, nombre, semestre, fechas de inicio/fin
+- **Asignaturas**: Código, créditos, horas teóricas y prácticas, calificación mínima
+- **Estudiantes**: Nombre, matrícula, email, teléfono, foto de perfil
+- **Calificaciones**: Notas parciales, de trabajo y final con fecha de registro
+- **Inscripciones**: Registro de qué estudiante está en qué módulo
+
+## Archivos del proyecto
+
+```
+.
+├── academico/              # Gestión académica
+│   ├── models.py          # Modelos (Maestría, Asignatura, Calificación, etc)
 │   ├── views.py           # Vistas para cada rol
-│   ├── forms.py           # Formularios
-│   ├── urls.py            # Rutas URL
-│   └── admin.py           # Configuración admin
-├── usuarios/              # App para autenticación
+│   ├── forms.py           # Formularios de creación/edición
+│   ├── urls.py            # Rutas de la app
+│   └── management/        # Comando para generar datos de prueba
+├── usuarios/              # Autenticación y perfiles
 │   ├── models.py          # Modelo PerfilUsuario
-│   ├── views.py           # Vistas de login/registro
-│   └── forms.py           # Formularios de usuario
-├── reportes/              # App para generación de reportes
-│   ├── views.py           # Generación de PDF y Excel
+│   ├── views.py           # Login, logout, edición de perfil
+│   ├── forms.py           # Formularios de usuario
 │   └── urls.py
-├── templates/             # Plantillas HTML
-│   ├── base.html          # Template base
-│   ├── dashboard.html     # Dashboard
-│   ├── academico/         # Templates por rol
-│   ├── usuarios/
-│   └── reportes/
-└── manage.py
+├── reportes/              # Generación de documentos
+│   ├── views.py           # PDF y Excel
+│   └── urls.py
+├── templates/             # HTML de todas las páginas
+│   ├── base.html          # Plantilla base con navegación
+│   ├── dashboard.html     # Panel principal
+│   ├── academico/         # Vistas académicas por rol
+│   ├── usuarios/          # Gestión de usuarios
+│   └── reportes/          # Reportes
+├── static/                # CSS, JS, imágenes
+│   ├── css/              # Estilos personalizados
+│   ├── img/              # Imágenes
+│   └── js/               # Scripts
+└── manage.py             # Comando principal de Django
 ```
 
-## Modelos de datos
+## Características técnicas
 
-### Principales
-- **Maestria**: Programa de posgrado
-- **ModuloMaestria**: Semestre/módulo dentro de una maestría
-- **Asignatura**: Curso dentro de un módulo
-- **ProfesorAsignatura**: Relación profesor-asignatura
-- **Estudiante**: Datos adicionales del estudiante
-- **InscripcionModulo**: Inscripción de estudiante en módulo
-- **Calificacion**: Notas de estudiante en asignatura
-- **Expediente**: Histórico académico del estudiante
-- **ActaCulminacion**: Acta de graduación
+**Backend**: Django 6.0 con Python
+**Frontend**: Bootstrap 5 + Tailwind CSS + Lucide Icons
+**Base de datos**: SQLite (desarrollo) - fácil de cambiar a PostgreSQL
+**Reportes**: PDF con ReportLab y Excel con openpyxl
+**Gráficos**: Chart.js para visualizaciones
+**Validación**: Django forms con validaciones personalizadas
 
-## Exportación de documentos
+## Funciones principales por vista
+
+### Dashboard
+- Panel personalizado por rol
+- Gráficos de distribución
+- Estadísticas en tiempo real
+- Accesos rápidos a funciones frecuentes
+
+### Gestión de Maestrías
+- CRUD completo (crear, leer, actualizar, eliminar)
+- Validación de datos
+- Sincronización de módulos y asignaturas
+
+### Registro de Calificaciones
+- Interfaz intuitiva para notas
+- Validación de rangos (0-5)
+- Historial de cambios
+
+### Reportes
+- Expediente académico en PDF
+- Actas de calificaciones en Excel
+- Documentos de graduación
+
+## Personalización
+
+Puedes cambiar:
+- Colores en `static/css/styles.css`
+- Campos de los modelos en `models.py`
+- Validaciones en `forms.py`
+- La estructura de reportes en `reportes/views.py`
+
+## Próximas mejoras
+
+- [ ] Sistema de notificaciones por email
+- [ ] Más opciones de reportes
+- [ ] Importación de estudiantes desde CSV
+- [ ] Sistema de calificaciones automático
+- [ ] API REST para móviles
+
+## ¿Problemas?
+
+Revisa:
+1. Que Python esté instalado: `python --version`
+2. Que Django esté instalado: `pip list | grep Django`
+3. Que las migraciones se ejecutaran bien: `python manage.py showmigrations`
+4. Los logs en `debug_logs/` si hay errores
 
 ### Expediente en PDF
 Descarga el expediente completo del estudiante en formato PDF.
